@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 560" width="960" height="560" font-family="system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif" role="img" aria-label="hermes-max-messenger architecture: MAX app, MAX Bot API, transport, inbound, Hermes Agent, speech-to-text, outbound, rate limiter">
+<rect width="960" height="560" rx="14" fill="#fbfcfe"/>
+<path d="M48,16 V544" stroke="#e8ecf2"/>
+<path d="M96,16 V544" stroke="#e8ecf2"/>
+<path d="M144,16 V544" stroke="#e8ecf2"/>
+<path d="M192,16 V544" stroke="#e8ecf2"/>
+<path d="M240,16 V544" stroke="#e8ecf2"/>
+<path d="M288,16 V544" stroke="#e8ecf2"/>
+<path d="M336,16 V544" stroke="#e8ecf2"/>
+<path d="M384,16 V544" stroke="#e8ecf2"/>
+<path d="M432,16 V544" stroke="#e8ecf2"/>
+<path d="M480,16 V544" stroke="#e8ecf2"/>
+<path d="M528,16 V544" stroke="#e8ecf2"/>
+<path d="M576,16 V544" stroke="#e8ecf2"/>
+<path d="M624,16 V544" stroke="#e8ecf2"/>
+<path d="M672,16 V544" stroke="#e8ecf2"/>
+<path d="M720,16 V544" stroke="#e8ecf2"/>
+<path d="M768,16 V544" stroke="#e8ecf2"/>
+<path d="M816,16 V544" stroke="#e8ecf2"/>
+<path d="M864,16 V544" stroke="#e8ecf2"/>
+<path d="M912,16 V544" stroke="#e8ecf2"/>
+<path d="M16,48 H944" stroke="#e8ecf2"/>
+<path d="M16,96 H944" stroke="#e8ecf2"/>
+<path d="M16,144 H944" stroke="#e8ecf2"/>
+<path d="M16,192 H944" stroke="#e8ecf2"/>
+<path d="M16,240 H944" stroke="#e8ecf2"/>
+<path d="M16,288 H944" stroke="#e8ecf2"/>
+<path d="M16,336 H944" stroke="#e8ecf2"/>
+<path d="M16,384 H944" stroke="#e8ecf2"/>
+<path d="M16,432 H944" stroke="#e8ecf2"/>
+<path d="M16,480 H944" stroke="#e8ecf2"/>
+<path d="M109,100 L109,210" fill="none" stroke="#c3cbd7" stroke-width="2"/>
+<path d="M109,210 L104,201 L114,201z" fill="#c3cbd7"/>
+<path d="M109,100 L114,109 L104,109z" fill="#c3cbd7"/>
+<path d="M194,240 L218,240 L218,150 L242,150" fill="none" stroke="#c3cbd7" stroke-width="2"/>
+<path d="M242,150 L233,155 L233,145z" fill="#c3cbd7"/>
+<path d="M327,120 L327,80" fill="none" stroke="#c3cbd7" stroke-width="2" stroke-dasharray="6 6"/>
+<path d="M327,80 L332,89 L322,89z" fill="#c3cbd7"/>
+<path d="M327,120 L322,111 L332,111z" fill="#c3cbd7"/>
+<path d="M412,150 L460,150" fill="none" stroke="#c3cbd7" stroke-width="2"/>
+<path d="M460,150 L451,155 L451,145z" fill="#c3cbd7"/>
+<path d="M630,150 L690,150" fill="none" stroke="#c3cbd7" stroke-width="2"/>
+<path d="M690,150 L681,155 L681,145z" fill="#c3cbd7"/>
+<path d="M690,370 L630,370" fill="none" stroke="#c3cbd7" stroke-width="2"/>
+<path d="M630,370 L639,365 L639,375z" fill="#c3cbd7"/>
+<path d="M460,370 L412,370" fill="none" stroke="#c3cbd7" stroke-width="2"/>
+<path d="M412,370 L421,365 L421,375z" fill="#c3cbd7"/>
+<path d="M242,370 L218,370 L218,280 L194,280" fill="none" stroke="#c3cbd7" stroke-width="2"/>
+<path d="M194,280 L203,275 L203,285z" fill="#c3cbd7"/>
+<path d="M813,380 L813,436" fill="none" stroke="#c3cbd7" stroke-width="2"/>
+<path d="M813,436 L808,427 L818,427z" fill="#c3cbd7"/>
+<path d="M813,380 L818,389 L808,389z" fill="#c3cbd7"/>
+<path d="M109,100 L109,210" fill="none" stroke="#2f6fed" stroke-width="2.5" opacity="0"><animate attributeName="opacity" dur="11.0s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0.0000;0.0000;0.0136;0.1136;0.1273;1.0000"/></path>
+<path d="M194,240 L218,240 L218,150 L242,150" fill="none" stroke="#2f6fed" stroke-width="2.5" opacity="0"><animate attributeName="opacity" dur="11.0s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0.0000;0.0727;0.0864;0.1682;0.1818;1.0000"/></path>
+<path d="M327,120 L327,80" fill="none" stroke="#2f6fed" stroke-width="2.5" opacity="0"><animate attributeName="opacity" dur="11.0s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0.0000;0.1273;0.1409;0.2045;0.2182;1.0000"/></path>
+<path d="M412,150 L460,150" fill="none" stroke="#2f6fed" stroke-width="2.5" opacity="0"><animate attributeName="opacity" dur="11.0s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0.0000;0.1545;0.1682;0.2409;0.2545;1.0000"/></path>
+<path d="M630,150 L690,150" fill="none" stroke="#2f6fed" stroke-width="2.5" opacity="0"><animate attributeName="opacity" dur="11.0s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0.0000;0.2000;0.2136;0.2864;0.3000;1.0000"/></path>
+<path d="M813,380 L813,436" fill="none" stroke="#2f6fed" stroke-width="2.5" opacity="0"><animate attributeName="opacity" dur="11.0s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0.0000;0.2545;0.2682;0.3409;0.3545;1.0000"/></path>
+<path d="M813,380 L813,436" fill="none" stroke="#2f6fed" stroke-width="2.5" opacity="0"><animate attributeName="opacity" dur="11.0s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0.0000;0.3182;0.3318;0.4045;0.4182;1.0000"/></path>
+<path d="M690,370 L630,370" fill="none" stroke="#2f6fed" stroke-width="2.5" opacity="0"><animate attributeName="opacity" dur="11.0s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0.0000;0.3909;0.4045;0.4591;0.4727;1.0000"/></path>
+<path d="M460,370 L412,370" fill="none" stroke="#2f6fed" stroke-width="2.5" opacity="0"><animate attributeName="opacity" dur="11.0s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0.0000;0.4182;0.4318;0.4864;0.5000;1.0000"/></path>
+<path d="M242,370 L218,370 L218,280 L194,280" fill="none" stroke="#2f6fed" stroke-width="2.5" opacity="0"><animate attributeName="opacity" dur="11.0s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0.0000;0.4455;0.4591;0.5318;0.5455;1.0000"/></path>
+<path d="M109,100 L109,210" fill="none" stroke="#2f6fed" stroke-width="2.5" opacity="0"><animate attributeName="opacity" dur="11.0s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0.0000;0.4909;0.5045;0.5682;0.5818;1.0000"/></path>
+<path d="M690,370 L630,370" fill="none" stroke="#2f6fed" stroke-width="2.5" opacity="0"><animate attributeName="opacity" dur="11.0s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0.0000;0.6182;0.6318;0.7045;0.7182;1.0000"/></path>
+<path d="M460,370 L412,370" fill="none" stroke="#2f6fed" stroke-width="2.5" opacity="0"><animate attributeName="opacity" dur="11.0s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0.0000;0.6636;0.6773;0.7409;0.7545;1.0000"/></path>
+<path d="M242,370 L218,370 L218,280 L194,280" fill="none" stroke="#2f6fed" stroke-width="2.5" opacity="0"><animate attributeName="opacity" dur="11.0s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0.0000;0.7000;0.7136;0.8045;0.8182;1.0000"/></path>
+<path d="M109,100 L109,210" fill="none" stroke="#2f6fed" stroke-width="2.5" opacity="0"><animate attributeName="opacity" dur="11.0s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0.0000;0.7636;0.7773;0.8773;0.8909;1.0000"/></path>
+<g><rect x="24" y="40" width="170" height="60" rx="9" fill="#ffffff" stroke="#2f6fed" stroke-opacity=".75" stroke-width="1.5"/><path d="M8 3h8a1.5 1.5 0 0 1 1.5 1.5v15A1.5 1.5 0 0 1 16 21H8a1.5 1.5 0 0 1-1.5-1.5v-15A1.5 1.5 0 0 1 8 3zM11 18h2" transform="translate(38,58.0)" fill="none" stroke="#2f6fed" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><text x="74" y="67.0" font-size="15" font-weight="600" fill="#18202c">MAX app</text><text x="74" y="85.0" font-size="11.5" fill="#5f6b7e">you, on a phone</text></g>
+<g><rect x="24" y="210" width="170" height="100" rx="9" fill="#ffffff" stroke="#cf2f68" stroke-opacity=".75" stroke-width="1.5"/><path d="M7 18.5h10.5a4 4 0 0 0 .6-7.95A5.5 5.5 0 0 0 7.4 9.3 4.6 4.6 0 0 0 7 18.5z" transform="translate(38,248.0)" fill="none" stroke="#cf2f68" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><text x="74" y="257.0" font-size="15" font-weight="600" fill="#18202c">MAX Bot API</text><text x="74" y="275.0" font-size="11.5" fill="#5f6b7e">platform-api2.max.ru</text></g>
+<g><rect x="242" y="24" width="170" height="56" rx="9" fill="#ffffff" stroke="#b86e00" stroke-opacity=".75" stroke-width="1.5"/><path d="M5 6c0-1.7 3.1-3 7-3s7 1.3 7 3-3.1 3-7 3-7-1.3-7-3zM5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3" transform="translate(256,40.0)" fill="none" stroke="#b86e00" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><text x="292" y="49.0" font-size="15" font-weight="600" fill="#18202c">State</text><text x="292" y="67.0" font-size="11.5" fill="#5f6b7e">marker · dedup</text></g>
+<g><rect x="242" y="120" width="170" height="60" rx="9" fill="#ffffff" stroke="#7a4cf0" stroke-opacity=".75" stroke-width="1.5"/><path d="M4 5.5h16v3.5H4zM4 10.25h16v3.5H4zM4 15h16v3.5H4z" transform="translate(256,138.0)" fill="none" stroke="#7a4cf0" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><text x="292" y="147.0" font-size="15" font-weight="600" fill="#18202c">Transport</text><text x="292" y="165.0" font-size="11.5" fill="#5f6b7e">long poll · webhook</text></g>
+<g><rect x="460" y="120" width="170" height="60" rx="9" fill="#ffffff" stroke="#7a4cf0" stroke-opacity=".75" stroke-width="1.5"/><path d="M12 3l7.5 3v5.5c0 4.5-3.2 8-7.5 9.5-4.3-1.5-7.5-5-7.5-9.5V6zM9 12l2 2 4-4" transform="translate(474,138.0)" fill="none" stroke="#7a4cf0" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><text x="510" y="147.0" font-size="15" font-weight="600" fill="#18202c">Inbound</text><text x="510" y="165.0" font-size="11.5" fill="#5f6b7e">sender · media</text></g>
+<g><rect x="460" y="340" width="170" height="60" rx="9" fill="#ffffff" stroke="#0b8f7d" stroke-opacity=".75" stroke-width="1.5"/><path d="M3.5 11.5 20.5 4l-6 16.5-3.5-7z M11 13.5 20.5 4" transform="translate(474,358.0)" fill="none" stroke="#0b8f7d" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><text x="510" y="367.0" font-size="15" font-weight="600" fill="#18202c">Outbound</text><text x="510" y="385.0" font-size="11.5" fill="#5f6b7e">HTML · uploads</text></g>
+<g><rect x="242" y="340" width="170" height="60" rx="9" fill="#ffffff" stroke="#b86e00" stroke-opacity=".75" stroke-width="1.5"/><path d="M13 3 5 13.5h6L10 21l8-10.5h-6z" transform="translate(256,358.0)" fill="none" stroke="#b86e00" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><text x="292" y="367.0" font-size="15" font-weight="600" fill="#18202c">Rate limiter</text><text x="292" y="385.0" font-size="11.5" fill="#5f6b7e">30/s · 2/s per chat</text></g>
+<g><rect x="690" y="436" width="246" height="60" rx="9" fill="#ffffff" stroke="#cf2f68" stroke-opacity=".75" stroke-width="1.5"/><path d="M4.5 5.5h15v10h-8.5l-4 3.5v-3.5h-2.5z" transform="translate(704,454.0)" fill="none" stroke="#cf2f68" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><text x="740" y="463.0" font-size="15" font-weight="600" fill="#18202c">Speech-to-text</text><text x="740" y="481.0" font-size="11.5" fill="#5f6b7e">SpeechKit · Salute · Whisper</text></g>
+<rect x="690" y="80" width="246" height="300" rx="12" fill="#ffffff" stroke="#0b8f7d" stroke-width="2"/>
+<path d="M7.5 7h9A2.5 2.5 0 0 1 19 9.5v6a2.5 2.5 0 0 1-2.5 2.5h-9A2.5 2.5 0 0 1 5 15.5v-6A2.5 2.5 0 0 1 7.5 7zM12 7V4M9.4 12h.01M14.6 12h.01M9.5 15h5" transform="translate(706,94)" fill="none" stroke="#0b8f7d" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="740" y="112" font-size="16" font-weight="700" fill="#18202c">Hermes Agent</text>
+<rect x="706" y="132" width="64" height="24" rx="12" fill="#ffffff" stroke="#c3cbd7"/>
+<rect x="706" y="132" width="64" height="24" rx="12" fill="#0b8f7d" fill-opacity=".18" stroke="#0b8f7d" opacity="0"><animate attributeName="opacity" dur="11.0s" repeatCount="indefinite" values="1;1;0;0" keyTimes="0.0000;0.2636;0.2773;1.0000"/></rect>
+<text x="738" y="148" font-size="12" text-anchor="middle" fill="#18202c">pair</text>
+<rect x="780" y="132" width="64" height="24" rx="12" fill="#ffffff" stroke="#c3cbd7"/>
+<rect x="780" y="132" width="64" height="24" rx="12" fill="#0b8f7d" fill-opacity=".18" stroke="#0b8f7d" opacity="0"><animate attributeName="opacity" dur="11.0s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0.0000;0.3773;0.3909;0.6364;0.6500;1.0000"/></rect>
+<text x="812" y="148" font-size="12" text-anchor="middle" fill="#18202c">think</text>
+<rect x="854" y="132" width="64" height="24" rx="12" fill="#ffffff" stroke="#c3cbd7"/>
+<rect x="854" y="132" width="64" height="24" rx="12" fill="#0b8f7d" fill-opacity=".18" stroke="#0b8f7d" opacity="0"><animate attributeName="opacity" dur="11.0s" repeatCount="indefinite" values="0;0;1;1" keyTimes="0.0000;0.6227;0.6364;1.0000"/></rect>
+<text x="886" y="148" font-size="12" text-anchor="middle" fill="#18202c">reply</text>
+<rect x="706" y="172" width="214" height="192" rx="6" fill="#f1f4f9" stroke="#e8ecf2"/>
+<g opacity="0"><animate attributeName="opacity" dur="11.0s" repeatCount="indefinite" values="1;1;0;0" keyTimes="0.0000;0.2636;0.2773;1.0000"/><text x="720" y="198" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="600" letter-spacing=".06em" fill="#5f6b7e">LONG POLL</text><text x="720" y="224" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="13.5" fill="#18202c">1 update · marker saved</text></g>
+<text x="480.0" y="538" font-size="15" text-anchor="middle" fill="#18202c" opacity="0"><animate attributeName="opacity" dur="11.0s" repeatCount="indefinite" values="1;1;0;0" keyTimes="0.0000;0.2636;0.2773;1.0000"/>① A message arrives — long poll or webhook, its place saved first</text>
+<g opacity="0"><animate attributeName="opacity" dur="11.0s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0.0000;0.2500;0.2636;0.3909;0.4045;1.0000"/><text x="720" y="198" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="600" letter-spacing=".06em" fill="#5f6b7e">VOICE 0:23</text><text x="720" y="224" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="13.5" fill="#18202c">yandex_speechkit → text</text></g>
+<text x="480.0" y="538" font-size="15" text-anchor="middle" fill="#18202c" opacity="0"><animate attributeName="opacity" dur="11.0s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0.0000;0.2500;0.2636;0.3909;0.4045;1.0000"/>② A voice note goes to the speech-to-text provider you chose</text>
+<g opacity="0"><animate attributeName="opacity" dur="11.0s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0.0000;0.3773;0.3909;0.6364;0.6500;1.0000"/><text x="720" y="198" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="600" letter-spacing=".06em" fill="#5f6b7e">THINKING</text><text x="720" y="224" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="13.5" fill="#18202c">typing_on every 2 s</text></g>
+<text x="480.0" y="538" font-size="15" text-anchor="middle" fill="#18202c" opacity="0"><animate attributeName="opacity" dur="11.0s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0.0000;0.3773;0.3909;0.6364;0.6500;1.0000"/>③ While Hermes thinks, MAX shows “typing…”</text>
+<g opacity="0"><animate attributeName="opacity" dur="11.0s" repeatCount="indefinite" values="0;0;1;1" keyTimes="0.0000;0.6227;0.6364;1.0000"/><text x="720" y="198" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5" font-weight="600" letter-spacing=".06em" fill="#5f6b7e">STREAMING</text><text x="720" y="224" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="13.5" fill="#18202c">edit 3 · ≤ 2 edits/s</text></g>
+<text x="480.0" y="538" font-size="15" text-anchor="middle" fill="#18202c" opacity="0"><animate attributeName="opacity" dur="11.0s" repeatCount="indefinite" values="0;0;1;1" keyTimes="0.0000;0.6227;0.6364;1.0000"/>④ The answer streams back as edits, paced by the limiter</text>
+<circle r="6" fill="#2f6fed" opacity="0"><animateMotion dur="11.0s" repeatCount="indefinite" path="M109,100 L109,210" calcMode="linear" keyPoints="0;0;1;1" keyTimes="0;0.0182;0.0909;1"/><animate attributeName="opacity" dur="11.0s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0.0000;0.0045;0.0182;0.0909;0.1045;1.0000"/></circle>
+<circle r="6" fill="#2f6fed" opacity="0"><animateMotion dur="11.0s" repeatCount="indefinite" path="M194,240 L218,240 L218,150 L242,150" calcMode="linear" keyPoints="0;0;1;1" keyTimes="0;0.0909;0.1455;1"/><animate attributeName="opacity" dur="11.0s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0.0000;0.0773;0.0909;0.1455;0.1591;1.0000"/></circle>
+<circle r="4" fill="#2f6fed" opacity="0"><animateMotion dur="11.0s" repeatCount="indefinite" path="M327,120 L327,80" calcMode="linear" keyPoints="0;0;1;1" keyTimes="0;0.1455;0.1818;1"/><animate attributeName="opacity" dur="11.0s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0.0000;0.1318;0.1455;0.1818;0.1955;1.0000"/></circle>
+<circle r="6" fill="#2f6fed" opacity="0"><animateMotion dur="11.0s" repeatCount="indefinite" path="M412,150 L460,150" calcMode="linear" keyPoints="0;0;1;1" keyTimes="0;0.1727;0.2182;1"/><animate attributeName="opacity" dur="11.0s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0.0000;0.1591;0.1727;0.2182;0.2318;1.0000"/></circle>
+<circle r="6" fill="#2f6fed" opacity="0"><animateMotion dur="11.0s" repeatCount="indefinite" path="M630,150 L690,150" calcMode="linear" keyPoints="0;0;1;1" keyTimes="0;0.2182;0.2636;1"/><animate attributeName="opacity" dur="11.0s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0.0000;0.2045;0.2182;0.2636;0.2773;1.0000"/></circle>
+<circle r="6" fill="#2f6fed" opacity="0"><animateMotion dur="11.0s" repeatCount="indefinite" path="M813,380 L813,436" calcMode="linear" keyPoints="0;0;1;1" keyTimes="0;0.2727;0.3182;1"/><animate attributeName="opacity" dur="11.0s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0.0000;0.2591;0.2727;0.3182;0.3318;1.0000"/></circle>
+<circle r="6" fill="#2f6fed" opacity="0"><animateMotion dur="11.0s" repeatCount="indefinite" path="M813,436 L813,380" calcMode="linear" keyPoints="0;0;1;1" keyTimes="0;0.3364;0.3818;1"/><animate attributeName="opacity" dur="11.0s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0.0000;0.3227;0.3364;0.3818;0.3955;1.0000"/></circle>
+<circle r="4" fill="#2f6fed" opacity="0"><animateMotion dur="11.0s" repeatCount="indefinite" path="M690,370 L630,370" calcMode="linear" keyPoints="0;0;1;1" keyTimes="0;0.4091;0.4364;1"/><animate attributeName="opacity" dur="11.0s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0.0000;0.3955;0.4091;0.4364;0.4500;1.0000"/></circle>
+<circle r="4" fill="#2f6fed" opacity="0"><animateMotion dur="11.0s" repeatCount="indefinite" path="M460,370 L412,370" calcMode="linear" keyPoints="0;0;1;1" keyTimes="0;0.4364;0.4636;1"/><animate attributeName="opacity" dur="11.0s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0.0000;0.4227;0.4364;0.4636;0.4773;1.0000"/></circle>
+<circle r="4" fill="#2f6fed" opacity="0"><animateMotion dur="11.0s" repeatCount="indefinite" path="M242,370 L218,370 L218,280 L194,280" calcMode="linear" keyPoints="0;0;1;1" keyTimes="0;0.4636;0.5091;1"/><animate attributeName="opacity" dur="11.0s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0.0000;0.4500;0.4636;0.5091;0.5227;1.0000"/></circle>
+<circle r="4" fill="#2f6fed" opacity="0"><animateMotion dur="11.0s" repeatCount="indefinite" path="M109,210 L109,100" calcMode="linear" keyPoints="0;0;1;1" keyTimes="0;0.5091;0.5455;1"/><animate attributeName="opacity" dur="11.0s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0.0000;0.4955;0.5091;0.5455;0.5591;1.0000"/></circle>
+<circle r="6" fill="#2f6fed" opacity="0"><animateMotion dur="11.0s" repeatCount="indefinite" path="M690,370 L630,370" calcMode="linear" keyPoints="0;0;1;1" keyTimes="0;0.6364;0.6818;1"/><animate attributeName="opacity" dur="11.0s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0.0000;0.6227;0.6364;0.6818;0.6955;1.0000"/></circle>
+<circle r="6" fill="#2f6fed" opacity="0"><animateMotion dur="11.0s" repeatCount="indefinite" path="M460,370 L412,370" calcMode="linear" keyPoints="0;0;1;1" keyTimes="0;0.6818;0.7182;1"/><animate attributeName="opacity" dur="11.0s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0.0000;0.6682;0.6818;0.7182;0.7318;1.0000"/></circle>
+<circle r="6" fill="#2f6fed" opacity="0"><animateMotion dur="11.0s" repeatCount="indefinite" path="M242,370 L218,370 L218,280 L194,280" calcMode="linear" keyPoints="0;0;1;1" keyTimes="0;0.7182;0.7818;1"/><animate attributeName="opacity" dur="11.0s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0.0000;0.7045;0.7182;0.7818;0.7955;1.0000"/></circle>
+<circle r="6" fill="#2f6fed" opacity="0"><animateMotion dur="11.0s" repeatCount="indefinite" path="M109,210 L109,100" calcMode="linear" keyPoints="0;0;1;1" keyTimes="0;0.7818;0.8545;1"/><animate attributeName="opacity" dur="11.0s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0.0000;0.7682;0.7818;0.8545;0.8682;1.0000"/></circle>
+</svg>

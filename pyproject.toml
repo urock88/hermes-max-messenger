@@ -1,0 +1,45 @@
+[project]
+name = "hermes-max-messenger"
+version = "0.1.0"
+description = "MAX messenger gateway and Russian speech-to-text providers for Hermes Agent"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.12"
+authors = [{ name = "urock88" }]
+dependencies = [
+    "httpx>=0.27,<1",
+    "aiohttp>=3.9,<4",
+    "certifi>=2024.2.2",
+]
+
+[project.optional-dependencies]
+tables = ["pillow>=10,<14"]
+dev = [
+    "pytest>=8,<10",
+    "pytest-asyncio>=0.24,<2",
+    "ruff>=0.6,<1",
+]
+
+[project.urls]
+Homepage = "https://github.com/urock88/hermes-max-messenger"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+extend-exclude = ["docs", "assets"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "ASYNC"]
+# ASYNC109: the client's ``timeout`` argument is an HTTP timeout, not an asyncio one.
+# ASYNC240: single stat() calls on local paths before an upload.
+ignore = ["S101", "S311", "ASYNC109", "ASYNC240"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S105", "S106", "S107", "S108", "E501"]
+"transport/webhook.py" = ["S105"]  # SECRET_HEADER is a header name
+"scripts/build_architecture_svg.py" = ["E501"]  # SVG path data and markup read better on one line

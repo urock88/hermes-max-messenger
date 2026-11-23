@@ -1,0 +1,26 @@
+hermes-max-messenger
+Copyright (c) 2026 urock88. Licensed under the MIT License (see LICENSE).
+
+Prior art
+---------
+This plugin is a new implementation, written from scratch. It does not copy code
+from the earlier community MAX plugins, but it learned from them and from their
+users' issue reports:
+
+* Realmagnum/hermes-max-integration ("max-platform"), MIT,
+  Copyright (c) 2026 Realmagnum / Hermes Agent community — in particular where MAX
+  puts upload tokens (audio/video in POST /uploads, images in "photos"), the
+  attachment.not.ready retry, and binding interactive buttons to the person whose
+  turn raised them.
+* vladimiraldushin/hermes-max-platform, MIT, Copyright (c) 2026 Vladimir Aldushin —
+  the first MAX adapter for Hermes.
+
+Bundled data
+------------
+assets/certs/russian_trusted_root_ca.pem is the public "Russian Trusted Root CA"
+certificate of the Ministry of Digital Development, Communications and Mass Media
+of the Russian Federation (valid until 2032-02-27). It is a public trust anchor,
+not covered by the MIT License of this project.
+
+docs/index.html contains a dependency-free animated flow-diagram engine adapted for
+this project's diagram.

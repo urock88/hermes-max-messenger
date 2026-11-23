@@ -1,0 +1,1124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>hermes-max-messenger · how it works</title>
+<!--
+  Animated flow diagram — framework-free template.
+  1. Edit DIAGRAM (bottom of the file): nodes, edges, two layouts, steps, optional terminal grid.
+  2. Open the page; the console must show no "[flow]" warnings (the built-in validator).
+  3. Freeze any moment for screenshots: ?step=3&t=2.5&still  (+ &view=terminal, &theme=dark, &skin=phosphor)
+-->
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f4f6fa;
+    --fl-plate: #fbfcfe;
+    --fl-panel: #ffffff;
+    --fl-grid: #e8ecf2;
+    --fl-edge: #c3cbd7;
+    --fl-edge-on: #2f6fed;
+    --fl-text: #18202c;
+    --fl-muted: #5f6b7e;
+    --fl-packet: #2f6fed;
+    --fl-glow: #2f6fed66;
+    --fl-warm: #c96f00;
+    --fl-warm-bg: #fff3df;
+    --fl-screen: #f1f4f9;
+    --fl-badge: #18202c;
+    --fl-badge-text: #ffffff;
+    --g-client: #2f6fed;
+    --g-edge: #7a4cf0;
+    --g-core: #0b8f7d;
+    --g-data: #b86e00;
+    --g-ext: #cf2f68;
+    --g-human: #c96f00;
+    --g-observe: #2a8f3f;
+    --fl-font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --fl-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    /* terminal view (CRT) */
+    --crt-bg: #06120b;
+    --crt-panel: #0a1a0f;
+    --crt-line: #1f6b3a;
+    --crt-dim: #2f8f55;
+    --crt-on: #9effc4;
+    --crt-hot: #d2ffe6;
+    --crt-text: #5cff9d;
+    --crt-hid: #10261a;
+    --crt-warm: #ffd166;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --page: #0d1117;
+      --fl-plate: #111821;
+      --fl-panel: #161f2b;
+      --fl-grid: #1b2532;
+      --fl-edge: #3a4860;
+      --fl-edge-on: #6ea0ff;
+      --fl-text: #e7edf5;
+      --fl-muted: #9aa8bb;
+      --fl-packet: #9cc0ff;
+      --fl-glow: #6ea0ff88;
+      --fl-warm: #ffb547;
+      --fl-warm-bg: #33240d;
+      --fl-screen: #0f1620;
+      --fl-badge: #e7edf5;
+      --fl-badge-text: #0d1117;
+      --g-client: #6ea0ff;
+      --g-edge: #a98bff;
+      --g-core: #3fd0b8;
+      --g-data: #f0a43a;
+      --g-ext: #ff6d9c;
+      --g-human: #ffb547;
+      --g-observe: #5fd27a;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page: #0d1117;
+    --fl-plate: #111821;
+    --fl-panel: #161f2b;
+    --fl-grid: #1b2532;
+    --fl-edge: #3a4860;
+    --fl-edge-on: #6ea0ff;
+    --fl-text: #e7edf5;
+    --fl-muted: #9aa8bb;
+    --fl-packet: #9cc0ff;
+    --fl-glow: #6ea0ff88;
+    --fl-warm: #ffb547;
+    --fl-warm-bg: #33240d;
+    --fl-screen: #0f1620;
+    --fl-badge: #e7edf5;
+    --fl-badge-text: #0d1117;
+    --g-client: #6ea0ff;
+    --g-edge: #a98bff;
+    --g-core: #3fd0b8;
+    --g-data: #f0a43a;
+    --g-ext: #ff6d9c;
+    --g-human: #ffb547;
+    --g-observe: #5fd27a;
+  }
+  /* Retro skin: green phosphor, monospace, one warm accent for the human */
+  .flow[data-skin="phosphor"] {
+    --fl-plate: #08160d;
+    --fl-panel: #0a1a0f;
+    --fl-grid: #10261a;
+    --fl-edge: #1f6b3a;
+    --fl-edge-on: #5cff9d;
+    --fl-text: #c8ffdf;
+    --fl-muted: #3ad17a;
+    --fl-packet: #d2ffe6;
+    --fl-glow: #5cff9d;
+    --fl-warm: #ffd166;
+    --fl-warm-bg: #2a2208;
+    --fl-screen: #0d2a19;
+    --fl-badge: #5cff9d;
+    --fl-badge-text: #06120b;
+    --g-client: #5cff9d;
+    --g-edge: #5cff9d;
+    --g-core: #5cff9d;
+    --g-data: #5cff9d;
+    --g-ext: #5cff9d;
+    --g-human: #ffd166;
+    --g-observe: #5cff9d;
+    --fl-font: var(--fl-mono);
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--fl-text); font-family: var(--fl-font); }
+  .page { max-width: 1040px; margin: 0 auto; padding: 32px 16px 48px; }
+  .page-title { margin: 0 0 6px; font-size: clamp(22px, 3.4vw, 30px); }
+  .page-lede { margin: 0 0 20px; color: var(--fl-muted); }
+
+  /* ---------- figure ---------- */
+  .flow { display: grid; gap: 14px; margin: 0; font-family: var(--fl-font); color: var(--fl-text); }
+  .fl-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; min-height: 30px; }
+  .fl-readout { font: 600 12px var(--fl-mono); letter-spacing: 0.08em; color: var(--fl-muted); }
+  .fl-plate {
+    position: relative; overflow: hidden; border-radius: 12px; padding: 12px;
+    background: var(--fl-plate); box-shadow: 0 0 0 1px var(--fl-grid), 0 10px 30px -18px #0004;
+  }
+  .flow[data-skin="phosphor"] .fl-plate {
+    background: radial-gradient(120% 90% at 50% 45%, #0d2214 0%, var(--fl-panel) 55%, #06120b 100%);
+    box-shadow: 0 0 0 1px var(--fl-edge), inset 0 0 24px #5cff9d14;
+  }
+  .fl-svg { display: block; width: 100%; height: auto; font-family: inherit; }
+  .fl-svg[data-layout="tall"] { display: none; }
+  @media (max-width: 639.98px) {
+    .flow[data-has-tall] .fl-svg[data-layout="wide"] { display: none; }
+    .flow[data-has-tall] .fl-svg[data-layout="tall"] { display: block; max-width: 460px; margin: 0 auto; }
+  }
+  .fl-plate[data-view="terminal"] > .fl-svg { display: none !important; }
+
+  .fl-gridline { fill: none; stroke: var(--fl-grid); stroke-width: 1; }
+  .fl-node > .box {
+    fill: color-mix(in srgb, var(--hue, var(--fl-edge)) 8%, var(--fl-panel));
+    stroke: color-mix(in srgb, var(--hue, var(--fl-edge)) 38%, var(--fl-edge));
+    stroke-width: 1.5;
+  }
+  .fl-node .ic { fill: none; stroke: var(--hue, var(--fl-muted)); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .fl-node .t { fill: var(--fl-text); font-weight: 600; }
+  .fl-node .s { fill: var(--fl-muted); }
+  .fl-node, .fl-edge { transition: opacity 0.5s cubic-bezier(0.32, 0.72, 0, 1); }
+  .fl-node[data-hidden], .fl-edge[data-hidden] { opacity: 0.12; }
+  .fl-node[data-on] > .box {
+    stroke: var(--hue, var(--fl-edge-on)); stroke-width: 2;
+    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--hue, var(--fl-edge-on)) 45%, transparent));
+  }
+  .fl-node[data-warm][data-on] > .box { stroke: var(--fl-warm); filter: drop-shadow(0 0 6px color-mix(in srgb, var(--fl-warm) 50%, transparent)); }
+  .fl-node[data-warm][data-on] .t { fill: var(--fl-warm); }
+
+  .fl-edge .line { fill: none; stroke: var(--fl-edge); stroke-width: 2; }
+  .fl-edge .head { fill: var(--fl-edge); }
+  .fl-edge .track { fill: none; stroke: none; }
+  .fl-edge[data-dashed] .line { stroke-dasharray: 6 6; }
+  .fl-edge[data-on] .line { stroke: var(--fl-edge-on); }
+  .fl-edge[data-on] .head { fill: var(--fl-edge-on); }
+  .fl-edge[data-warm][data-on] .line { stroke: var(--fl-warm); }
+  .fl-edge[data-warm][data-on] .head { fill: var(--fl-warm); }
+  .fl-num circle { fill: var(--fl-badge); stroke: var(--fl-plate); stroke-width: 2; }
+  .fl-num text { fill: var(--fl-badge-text); font: 700 11px var(--fl-font); }
+
+  .fl-chip rect { fill: var(--fl-panel); stroke: var(--fl-edge); }
+  .fl-chip text { fill: var(--fl-muted); font-weight: 500; }
+  .fl-chip[data-on] rect { fill: color-mix(in srgb, var(--hue, var(--fl-edge-on)) 16%, var(--fl-panel)); stroke: var(--hue, var(--fl-edge-on)); }
+  .fl-chip[data-on] text { fill: var(--fl-text); }
+  .fl-screen { fill: var(--fl-screen); stroke: var(--fl-grid); }
+  .fl-scr-h { fill: var(--fl-muted); font: 600 11.5px var(--fl-mono); letter-spacing: 0.06em; }
+  .fl-scr { fill: var(--fl-text); font: 14px var(--fl-mono); }
+  .fl-status rect { fill: var(--fl-warm-bg); stroke: var(--fl-warm); }
+  .fl-status text { fill: var(--fl-warm); font: 600 11.5px var(--fl-font); }
+  .fl-packet { fill: var(--fl-packet); filter: drop-shadow(0 0 4px var(--fl-glow)); }
+  .fl-packet[data-warm] { fill: var(--fl-warm); filter: drop-shadow(0 0 4px var(--fl-warm)); }
+
+  /* ---------- terminal view ---------- */
+  .fl-crt {
+    position: relative; overflow: hidden; container-type: inline-size;
+    padding: clamp(8px, 2.2vw, 20px); border-radius: 8px; font-family: var(--fl-mono);
+    background: radial-gradient(120% 100% at 50% 45%, #0d2214 0%, var(--crt-panel) 60%, var(--crt-bg) 100%);
+    box-shadow: 0 0 0 1px var(--crt-line);
+  }
+  .fl-crt[hidden] { display: none; }
+  /* static scanlines: an animated overlay doubles paint cost on phones */
+  .fl-crt::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background:
+      repeating-linear-gradient(0deg, #0000002e 0 1px, transparent 1px 3px),
+      radial-gradient(130% 100% at 50% 50%, transparent 62%, #000000a0 100%);
+  }
+  .fl-pre {
+    margin: 0; font: inherit; line-height: 1.2; white-space: pre; overflow: hidden; color: var(--crt-line);
+    font-size: clamp(6px, calc(100cqw / (var(--cols, 74) * 0.62)), 18px);
+  }
+  .fl-pre span[data-s="on"] { color: var(--crt-on); text-shadow: 0 0 6px #5cff9d88; }
+  .fl-pre span[data-s="idle"] { color: var(--crt-dim); }
+  .fl-pre span[data-s="hid"] { color: var(--crt-hid); }
+  .fl-pre span[data-s="scr"] { color: var(--crt-on); }
+  .fl-pre span[data-s="warm"] { color: var(--crt-warm); text-shadow: 0 0 6px #ffd16688; }
+  .fl-pre span[data-s="pk"] { color: var(--crt-hot); text-shadow: 0 0 8px var(--crt-text); }
+  .fl-pre span[data-s="pkw"] { color: #ffe08a; text-shadow: 0 0 8px var(--crt-warm); }
+  .fl-typed { margin-top: 10px; min-height: 2.8em; font-size: clamp(11px, 1.8vw, 14px); color: var(--crt-on); text-shadow: 0 0 6px #5cff9d66; }
+  .fl-typed::after { content: "\258C"; color: var(--crt-text); animation: fl-blink 1.06s steps(1, end) infinite; }
+  @keyframes fl-blink { 50% { opacity: 0; } }
+
+  /* ---------- steps and caption ---------- */
+  .fl-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .fl-steps button {
+    display: flex; gap: 8px; align-items: center; text-align: left; cursor: pointer;
+    font: inherit; font-size: 13px; color: var(--fl-muted); background: var(--fl-panel);
+    border: 1px solid var(--fl-grid); border-radius: 6px; padding: 6px 10px;
+  }
+  .fl-steps button:hover { border-color: var(--fl-edge); color: var(--fl-text); }
+  .fl-steps button:focus-visible, .fl-knife:focus-visible { outline: 2px solid var(--fl-edge-on); outline-offset: 2px; }
+  .fl-steps button[data-on] { color: var(--fl-text); border-color: var(--fl-edge-on); box-shadow: inset 0 0 0 1px var(--fl-edge-on); }
+  .fl-n {
+    display: inline-grid; place-items: center; width: 20px; height: 20px; flex: none; border-radius: 50%;
+    background: var(--fl-badge); color: var(--fl-badge-text); font-size: 11px; font-weight: 700;
+  }
+  .fl-caption { margin: 0; min-height: 3.2em; max-width: 72ch; font-size: 15px; line-height: 1.5; }
+  /* in the terminal the caption is typed on the screen; keep it for screen readers only */
+  .fl-caption[data-view="terminal"] { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  /* ---------- knife switch (view toggle) ---------- */
+  .fl-knife {
+    display: inline-flex; align-items: center; gap: 8px; padding: 4px 8px; cursor: pointer;
+    font: 600 12px var(--fl-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--fl-muted);
+    background: transparent; border: 1px solid var(--fl-grid); border-radius: 6px;
+  }
+  .fl-knife:hover { border-color: var(--fl-edge); }
+  .fl-knife svg { width: 84px; height: 45px; display: block; }
+  .fl-kl { transition: color 0.3s; }
+  .fl-knife[aria-checked="false"] .fl-kl[data-side="scheme"],
+  .fl-knife[aria-checked="true"] .fl-kl[data-side="terminal"] { color: var(--fl-text); }
+  .k-base { fill: var(--fl-panel); stroke: var(--fl-edge); }
+  .k-screw, .k-pin { fill: var(--fl-muted); }
+  .k-jaw rect, .k-hinge { fill: var(--fl-screen); stroke: var(--fl-edge); stroke-width: 0.8; }
+  .fl-knife[aria-checked="false"] .k-jaw[data-side="scheme"] rect,
+  .fl-knife[aria-checked="true"] .k-jaw[data-side="terminal"] rect { stroke: var(--fl-edge-on); }
+  .k-blade { transform-box: view-box; transform-origin: 60px 43px; transform: rotate(-37deg); transition: transform 0.38s cubic-bezier(0.32, 0.72, 0, 1); }
+  .fl-knife[aria-checked="true"] .k-blade { transform: rotate(37deg); }
+  .k-blade rect { fill: var(--fl-muted); stroke: var(--fl-edge); stroke-width: 0.6; }
+  .k-blade .k-handle { fill: var(--fl-warm); stroke: none; }
+  .k-spark { fill: #fff7d6; opacity: 0; transform-box: fill-box; transform-origin: center; filter: drop-shadow(0 0 6px var(--fl-warm)); }
+  .k-spark.go { animation: fl-spark 0.45s ease-out 0.28s; }
+  @keyframes fl-spark { 0% { opacity: 0.95; transform: scale(0.4); } 100% { opacity: 0; transform: scale(1.6); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fl-node, .fl-edge, .k-blade, .fl-kl { transition: none; }
+    .k-spark.go, .fl-typed::after { animation: none; }
+  }
+</style>
+</head>
+<body>
+<main class="page">
+  <h2 class="page-title">How Hermes talks in MAX</h2>
+  <p class="page-lede">One message, six steps — from your phone to the agent and back. Click a step to replay it.</p>
+  <figure class="flow" id="max-flow"></figure>
+</main>
+
+<script>
+/* =====================================================================
+   1. THE DIAGRAM — edit this. Every word on the figure lives here.
+   ===================================================================== */
+const DIAGRAM = {
+  label: 'Animated diagram: a message written in the MAX app reaches the MAX Bot API, the plugin\'s transport (long polling or a webhook) saves its place and passes it on; inbound checks the sender and fetches media; Hermes thinks while a typing indicator shows, voice notes go to a speech-to-text provider, and the answer streams back through outbound formatting and a rate limiter.',
+  idle: 'WAITING FOR MESSAGES',
+  stepWord: 'STEP',
+  stepsAria: 'Diagram steps',
+  stepSeconds: 7,
+  holdSeconds: 14,
+  switcher: { scheme: 'Diagram', aria: 'Diagram view' },
+
+  nodes: {
+    user: { title: 'MAX app', sub: 'you, on a phone', icon: 'phone', group: 'client' },
+    maxapi: { title: 'MAX Bot API', sub: 'platform-api2.max.ru', icon: 'cloud', group: 'ext' },
+    transport: { title: 'Transport', sub: 'long poll · webhook', icon: 'queue', group: 'edge' },
+    state: { title: 'State', sub: 'marker · dedup', icon: 'db', group: 'data' },
+    inbound: { title: 'Inbound', sub: 'sender · media', icon: 'shield', group: 'edge' },
+    hermes: { title: 'Hermes Agent', icon: 'bot', group: 'core', always: true, screen: true,
+              chips: ['pair', 'think', 'reply'], status: 'waiting for you' },
+    stt: { title: 'Speech-to-text', sub: 'SpeechKit · Salute', icon: 'chat', group: 'ext', from: 5 },
+    outbound: { title: 'Outbound', sub: 'HTML · uploads', icon: 'send', group: 'core', from: 1 },
+    limiter: { title: 'Rate limiter', sub: '30/s · 2/s per chat', icon: 'bolt', group: 'data', from: 1 },
+  },
+
+  edges: {
+    'in-user': { num: true, arrows: 'both' },
+    'to-transport': {},
+    'to-state': { dashed: true, arrows: 'both' },
+    'to-inbound': {},
+    'to-hermes': { from: 1, num: true },
+    'to-outbound': { from: 1 },
+    'to-limiter': { from: 1, num: true },
+    'to-max': { from: 1 },
+    'to-stt': { from: 5, num: true, arrows: 'both' },
+  },
+
+  layouts: {
+    wide: {
+      w: 960, h: 520,
+      nodes: {
+        user: { x: 24, y: 40, w: 170, h: 60 },
+        maxapi: { x: 24, y: 210, w: 170, h: 100 },
+        state: { x: 242, y: 24, w: 170, h: 56 },
+        transport: { x: 242, y: 120, w: 170, h: 60 },
+        inbound: { x: 460, y: 120, w: 170, h: 60 },
+        hermes: { x: 690, y: 80, w: 246, h: 300 },
+        outbound: { x: 460, y: 340, w: 170, h: 60 },
+        limiter: { x: 242, y: 340, w: 170, h: 60 },
+        stt: { x: 690, y: 436, w: 246, h: 60 },
+      },
+      edges: {
+        'in-user': [[109, 100], [109, 210]],
+        'to-transport': [[194, 240], [218, 240], [218, 150], [242, 150]],
+        'to-state': [[327, 120], [327, 80]],
+        'to-inbound': [[412, 150], [460, 150]],
+        'to-hermes': [[630, 150], [690, 150]],
+        'to-outbound': [[690, 370], [630, 370]],
+        'to-limiter': [[460, 370], [412, 370]],
+        'to-max': [[242, 370], [218, 370], [218, 280], [194, 280]],
+        'to-stt': [[813, 380], [813, 436]],
+      },
+    },
+    tall: {
+      w: 420, h: 700, numbers: false, packet: 5,
+      nodes: {
+        user: { x: 10, y: 10, w: 180, h: 52 },
+        maxapi: { x: 220, y: 10, w: 180, h: 52 },
+        state: { x: 6, y: 96, w: 92, h: 52 },
+        transport: { x: 120, y: 96, w: 180, h: 52 },
+        inbound: { x: 120, y: 182, w: 180, h: 52 },
+        hermes: { x: 16, y: 268, w: 380, h: 230 },
+        stt: { x: 10, y: 530, w: 180, h: 52 },
+        outbound: { x: 220, y: 530, w: 180, h: 52 },
+        limiter: { x: 220, y: 616, w: 180, h: 52 },
+      },
+      edges: {
+        'in-user': [[190, 36], [220, 36]],
+        'to-transport': [[310, 62], [310, 79], [210, 79], [210, 96]],
+        'to-state': [[120, 122], [98, 122]],
+        'to-inbound': [[210, 148], [210, 182]],
+        'to-hermes': [[210, 234], [210, 268]],
+        'to-stt': [[100, 498], [100, 530]],
+        'to-outbound': [[310, 498], [310, 530]],
+        'to-limiter': [[310, 582], [310, 616]],
+        'to-max': [[400, 642], [412, 642], [412, 36], [400, 36]],
+      },
+    },
+  },
+
+  steps: [
+    {
+      title: 'A message arrives',
+      text: 'MAX hands the message to the plugin by long polling (or a webhook). Its place is saved first, so a restart never reads it twice or loses one.',
+      run(f) {
+        if (f.flow('in-user', 0.2, 1.1) || f.at(1.1)) f.lit('user', 'in-user');
+        if (f.flow('to-transport', 1.2, 2.1) || f.at(2.1)) f.lit('maxapi', 'to-transport', 'transport');
+        if (f.flow('to-state', 2.2, 2.9) || f.at(2.9)) f.lit('to-state', 'state');
+        if (f.flow('to-inbound', 3.0, 3.8) || f.at(3.8)) f.lit('to-inbound', 'inbound');
+        f.screen('LONG POLL', f.t < 2.9 ? '1 update · chat 4242' : 'marker 1042 saved · 1 update');
+      },
+    },
+    {
+      title: 'A stranger gets a code',
+      text: 'Hermes decides who may talk to it. A new person gets a pairing code for the owner to approve, and the server downloads nothing they sent.',
+      run(f) {
+        f.chip(0);
+        f.lit('inbound');
+        if (f.flow('to-hermes', 0.2, 1.0) || f.at(1.0)) f.lit('to-hermes');
+        f.flow('to-outbound', 1.8, 2.5);
+        f.flow('to-limiter', 2.5, 3.1);
+        f.flow('to-max', 3.1, 3.9);
+        f.flow('in-user', 3.9, 4.7, { reverse: true });
+        if (f.at(2.5)) f.lit('outbound', 'to-outbound');
+        if (f.at(3.1)) f.lit('limiter', 'to-limiter');
+        if (f.at(3.9)) f.lit('to-max', 'maxapi');
+        if (f.at(4.7)) f.lit('user', 'in-user');
+        f.screen('NEW SENDER', f.t < 1.6 ? 'id 4815 · not on the list' : 'pairing code K7Q2-9FX4 sent');
+      },
+    },
+    {
+      title: 'Typing while it thinks',
+      text: 'While the agent works, the plugin shows "typing…" in MAX every two seconds — Hermes keeps it alive and pauses it while you decide something.',
+      run(f) {
+        f.chip(1);
+        for (let k = 0; k < 3; k++) {
+          const a = 0.3 + k * 1.6;
+          f.flow('to-max', a, a + 0.7);
+          f.flow('in-user', a + 0.7, a + 1.3, { reverse: true });
+        }
+        f.lit('to-outbound', 'to-limiter', 'outbound', 'limiter');
+        if (f.at(0.3)) f.lit('maxapi', 'to-max');
+        if (f.at(1.0)) f.lit('user', 'in-user');
+        f.screen('THINKING', 'typing_on → chat 4242 · every 2 s');
+      },
+    },
+    {
+      title: 'The answer streams in',
+      text: 'The reply appears and grows by edits. Markdown becomes MAX HTML, long text splits at 3 500 characters, and the limiter keeps MAX\'s pace.',
+      run(f) {
+        f.chip(2);
+        for (let k = 0; k < 3; k++) {
+          const a = 0.2 + k * 1.3;
+          f.flow('to-outbound', a, a + 0.5);
+          f.flow('to-limiter', a + 0.5, a + 0.9);
+          f.flow('to-max', a + 0.9, a + 1.5);
+        }
+        if (f.at(0.2)) f.lit('to-outbound', 'outbound', 'to-limiter', 'limiter', 'to-max', 'maxapi');
+        if (f.flow('in-user', 4.4, 5.1, { reverse: true }) || f.at(5.1)) f.lit('user', 'in-user');
+        f.screen('STREAMING', f.t < 4 ? `edit ${1 + Math.min(2, Math.floor(f.t / 1.3))} · ≤ 2 edits/s` : '1 812 chars · 1 message · done');
+      },
+    },
+    {
+      title: 'You approve the risky part',
+      text: 'Before a dangerous command Hermes asks with buttons. Only the person whose turn it is can press them; anyone else is refused.',
+      run(f) {
+        f.lit('outbound', 'limiter', 'maxapi');
+        f.flow('to-max', 0.3, 1.0);
+        f.flow('in-user', 1.0, 1.6, { reverse: true });
+        f.status(f.t < 2.4 ? f.ease((f.t - 0.6) / 0.5) : 1 - f.ease((f.t - 4.6) / 0.4));
+        if (f.flow('in-user', 2.4, 3.1, { warm: true }) || f.at(1.0)) f.lit('user', 'in-user');
+        f.flow('to-transport', 3.1, 3.7, { warm: true });
+        f.flow('to-inbound', 3.7, 4.2, { warm: true });
+        f.flow('to-hermes', 4.2, 4.7, { warm: true });
+        if (f.at(3.1)) f.lit('transport', 'to-transport');
+        if (f.at(3.7)) f.lit('inbound', 'to-inbound');
+        if (f.at(4.2)) f.lit('to-hermes');
+        f.screen(f.t < 4.7 ? 'APPROVE?' : 'APPROVED', f.t < 4.7 ? 'git clean -fdx · once / deny' : 'git clean -fdx · once · owner');
+      },
+    },
+    {
+      title: 'Voice notes become text',
+      text: 'A voice note goes to the speech-to-text provider you chose: Yandex SpeechKit, Sber SaluteSpeech, or a local Whisper.',
+      run(f) {
+        f.flow('in-user', 0.2, 0.9);
+        f.flow('to-transport', 0.9, 1.4);
+        f.flow('to-inbound', 1.4, 1.8);
+        f.flow('to-hermes', 1.8, 2.3);
+        f.lit('user', 'transport', 'inbound', 'to-hermes');
+        if (f.at(2.3)) f.lit('stt', 'to-stt');
+        f.flow('to-stt', 2.4, 3.1);
+        f.flow('to-stt', 3.5, 4.2, { reverse: true });
+        f.screen(f.t < 4.2 ? 'VOICE 0:23' : 'TRANSCRIBED', f.t < 4.2 ? 'ogg/opus → yandex_speechkit' : '"move the call to Friday"');
+      },
+    },
+  ],
+};
+
+/* =====================================================================
+   2. ENGINE — no edits needed. FlowDiagram.mount(element, DIAGRAM)
+   ===================================================================== */
+const FlowDiagram = (() => {
+  // 24×24 stroke icons; a node may also pass its own path ("M…")
+  const ICONS = {
+    browser: 'M3.5 5.5h17v13h-17zM3.5 9h17M6.2 7.25h.01M8.4 7.25h.01',
+    phone: 'M8 3h8a1.5 1.5 0 0 1 1.5 1.5v15A1.5 1.5 0 0 1 16 21H8a1.5 1.5 0 0 1-1.5-1.5v-15A1.5 1.5 0 0 1 8 3zM11 18h2',
+    plug: 'M9 3v5M15 3v5M6.5 8h11v3.5a5.5 5.5 0 0 1-11 0zM12 17v4',
+    shield: 'M12 3l7.5 3v5.5c0 4.5-3.2 8-7.5 9.5-4.3-1.5-7.5-5-7.5-9.5V6zM9 12l2 2 4-4',
+    gear: 'M12 8.8a3.2 3.2 0 1 0 0 6.4 3.2 3.2 0 0 0 0-6.4zM12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8',
+    db: 'M5 6c0-1.7 3.1-3 7-3s7 1.3 7 3-3.1 3-7 3-7-1.3-7-3zM5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3',
+    card: 'M3.5 6.5h17v11h-17zM3.5 10h17M6.5 14.5h4',
+    queue: 'M4 5.5h16v3.5H4zM4 10.25h16v3.5H4zM4 15h16v3.5H4z',
+    mail: 'M3.5 6h17v12h-17zM3.5 6.5l8.5 6.5 8.5-6.5',
+    user: 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4.5 20.5a7.5 7.5 0 0 1 15 0',
+    headset: 'M5 14v-2a7 7 0 0 1 14 0v2M3.5 13h4v6h-4zM16.5 13h4v6h-4zM18.5 19a4 4 0 0 1-4 2.5H12',
+    chart: 'M4 20h16M7 20v-6M11 20V9M15 20v-8M19 20V5',
+    bot: 'M7.5 7h9A2.5 2.5 0 0 1 19 9.5v6a2.5 2.5 0 0 1-2.5 2.5h-9A2.5 2.5 0 0 1 5 15.5v-6A2.5 2.5 0 0 1 7.5 7zM12 7V4M9.4 12h.01M14.6 12h.01M9.5 15h5',
+    globe: 'M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 0 0 0-17zM3.5 12h17M12 3.5c-3 3-3 14 0 17M12 3.5c3 3 3 14 0 17',
+    cloud: 'M7 18.5h10.5a4 4 0 0 0 .6-7.95A5.5 5.5 0 0 0 7.4 9.3 4.6 4.6 0 0 0 7 18.5z',
+    lock: 'M6 11h12v9.5H6zM8.5 11V8a3.5 3.5 0 0 1 7 0v3',
+    server: 'M4 4.5h16v6H4zM4 13.5h16v6H4zM7 7.5h.01M7 16.5h.01',
+    bolt: 'M13 3 5 13.5h6L10 21l8-10.5h-6z',
+    code: 'M8 4.5c-2.4 0-2.4 2.5-2.4 4.2 0 1.6-1 2.8-2.1 3.3 1.1.5 2.1 1.7 2.1 3.3 0 1.7 0 4.2 2.4 4.2M16 4.5c2.4 0 2.4 2.5 2.4 4.2 0 1.6 1 2.8 2.1 3.3-1.1.5-2.1 1.7-2.1 3.3 0 1.7 0 4.2-2.4 4.2',
+    chat: 'M4 5.5h16v10.5H9.5L5.5 19.5V16H4z',
+    send: 'M3 11.5 21 4l-3.2 16-5.6-4.4-3 2.9.4-4.6L17 7.6 7.3 13.4z',
+    megaphone: 'M4 9.5v5h3l6 4v-13l-6 4zM16.5 9a4 4 0 0 1 0 6M19 6.5a7.5 7.5 0 0 1 0 11',
+  };
+  const BREAK = '(min-width: 640px)';
+  const MONO = 0.62; // monospace advance per em, rounded up
+  const SCR_PX = 14;
+  const own = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
+  const ease = (x) => (x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x));
+  const rd = (x) => Math.round(x * 10) / 10;
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const said = new Set();
+  const warn = (msg) => {
+    if (said.has(msg)) return;
+    said.add(msg);
+    console.warn('[flow] ' + msg);
+  };
+  let uid = 0;
+
+  function wrap(text, n) {
+    const out = [];
+    let line = '';
+    for (const w of String(text).split(/\s+/)) {
+      if (!w) continue;
+      if (line && (line + ' ' + w).length > n) {
+        out.push(line);
+        line = w;
+      } else line = line ? line + ' ' + w : w;
+    }
+    if (line) out.push(line);
+    return out;
+  }
+
+  const ctx = document.createElement('canvas').getContext('2d');
+  function textWidth(text, px, family, weight) {
+    ctx.font = `${weight} ${px}px ${family}`;
+    return ctx.measureText(String(text)).width;
+  }
+  const fits = []; // label sizes, checked by the validator
+  function fit(text, avail, base, family, weight, where) {
+    const w = textWidth(text, base, family, weight);
+    const size = w <= avail ? base : Math.floor(((base * avail) / w) * 10) / 10;
+    fits.push({ text, size, where });
+    return size;
+  }
+
+  const pathOf = (pts) => 'M' + pts.map((p) => p.map(rd).join(' ')).join('L');
+  function pullBack(pts, atStart, atEnd, by) {
+    const p = pts.map((q) => q.slice());
+    const pull = (from, to) => {
+      const dx = to[0] - from[0], dy = to[1] - from[1], len = Math.hypot(dx, dy) || 1, k = Math.min(by, len / 2) / len;
+      to[0] -= dx * k;
+      to[1] -= dy * k;
+    };
+    if (atEnd) pull(p[p.length - 2], p[p.length - 1]);
+    if (atStart) pull(p[1], p[0]);
+    return p;
+  }
+  function head(a, b, size) {
+    const dx = b[0] - a[0], dy = b[1] - a[1], len = Math.hypot(dx, dy) || 1, ux = dx / len, uy = dy / len;
+    const bx = b[0] - ux * size, by = b[1] - uy * size, px = -uy * size * 0.55, py = ux * size * 0.55;
+    return `M${rd(b[0])} ${rd(b[1])}L${rd(bx + px)} ${rd(by + py)}L${rd(bx - px)} ${rd(by - py)}Z`;
+  }
+  function longestMid(pts) {
+    let best = -1, mid = pts[0];
+    for (let i = 1; i < pts.length; i++) {
+      const a = pts[i - 1], b = pts[i], len = Math.hypot(b[0] - a[0], b[1] - a[1]);
+      if (len > best) {
+        best = len;
+        mid = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+      }
+    }
+    return mid;
+  }
+
+  /** Geometry inside the hub node (the one with screen: true). */
+  function hubParts(box, n) {
+    const chipsY = box.y + 48;
+    const scrY = box.y + (n.chips ? 90 : 54);
+    const scrH = box.y + box.h - 14 - scrY;
+    const lines = Math.max(1, Math.min(4, Math.floor((scrH - 60) / 22) + 1));
+    const wrapN = Math.max(8, Math.floor((box.w - 56) / (SCR_PX * MONO)));
+    return { chipsY, scrY, scrH, lines, wrapN };
+  }
+
+  function nodeSvg(key, id, n, box, fam) {
+    const style = n.group ? ` style="--hue:var(--g-${n.group})"` : '';
+    let s = `<g class="fl-node" data-node="${id}"${n.warm ? ' data-warm=""' : ''}${style}>`;
+    s += `<rect class="box" x="${box.x}" y="${box.y}" width="${box.w}" height="${box.h}" rx="8"/>`;
+    const where = `${key}: node "${id}"`;
+    const statusW = n.screen && n.status ? textWidth(n.status, 11.5, fam, 600) + 22 : 0;
+    if (box.w < 140 || !n.icon) {
+      // narrow block: no icon, centered label
+      const cx = box.x + box.w / 2, cy = box.y + box.h / 2;
+      const size = fit(n.title, box.w - 16, 15, fam, 600, where);
+      const ty = n.sub && !n.screen ? cy - 2 : cy + size * 0.36;
+      s += `<text class="t" x="${rd(cx)}" y="${rd(ty)}" font-size="${size}" text-anchor="middle">${esc(n.title)}</text>`;
+      if (n.sub && !n.screen) s += `<text class="s" x="${rd(cx)}" y="${rd(ty + 16)}" font-size="${fit(n.sub, box.w - 16, 12, fam, 400, where)}" text-anchor="middle">${esc(n.sub)}</text>`;
+    } else {
+      const top = n.screen ? box.y + 14 : box.y + box.h / 2 - 12;
+      s += `<path class="ic" transform="translate(${box.x + 14} ${rd(top)})" d="${ICONS[n.icon] || n.icon}"/>`;
+      const tx = box.x + 48, avail = box.w - 56 - (statusW ? statusW + 8 : 0);
+      const ty = n.screen ? box.y + 31 : n.sub ? box.y + box.h / 2 - 2 : box.y + box.h / 2 + 5;
+      s += `<text class="t" x="${tx}" y="${rd(ty)}" font-size="${fit(n.title, avail, 16, fam, 600, where)}">${esc(n.title)}</text>`;
+      if (n.sub && !n.screen) s += `<text class="s" x="${tx}" y="${rd(ty + 18)}" font-size="${fit(n.sub, avail, 12.5, fam, 400, where)}">${esc(n.sub)}</text>`;
+    }
+    if (n.screen) {
+      const H = hubParts(box, n);
+      if (n.chips) {
+        const inner = box.w - 32, gap = 8;
+        const natural = n.chips.map((c) => textWidth(c, 12, fam, 500) + 24);
+        const k = Math.min(1, (inner - gap * (n.chips.length - 1)) / natural.reduce((a, b) => a + b, 0));
+        let x = box.x + 16;
+        n.chips.forEach((c, i) => {
+          const w = natural[i] * k;
+          s += `<g class="fl-chip" data-chip="${i}"><rect x="${rd(x)}" y="${H.chipsY}" width="${rd(w)}" height="26" rx="13"/>`;
+          s += `<text x="${rd(x + w / 2)}" y="${H.chipsY + 17}" text-anchor="middle" font-size="${fit(c, w - 10, 12, fam, 500, where + ' chip')}">${esc(c)}</text></g>`;
+          x += w + gap;
+        });
+      }
+      s += `<rect class="fl-screen" x="${box.x + 16}" y="${H.scrY}" width="${box.w - 32}" height="${H.scrH}" rx="5"/>`;
+      s += `<text class="fl-scr-h" data-scr="h" x="${box.x + 28}" y="${H.scrY + 24}"></text>`;
+      for (let i = 0; i < H.lines; i++) s += `<text class="fl-scr" data-scr="${i}" x="${box.x + 28}" y="${H.scrY + 50 + i * 22}"></text>`;
+      if (n.status) {
+        const x = box.x + box.w - statusW - 12;
+        s += `<g class="fl-status" data-status="" style="opacity:0"><rect x="${rd(x)}" y="${box.y + 13}" width="${rd(statusW)}" height="22" rx="11"/>`;
+        s += `<text x="${rd(x + statusW / 2)}" y="${box.y + 28}" text-anchor="middle">${esc(n.status)}</text></g>`;
+      }
+    }
+    return s + '</g>';
+  }
+
+  function edgeSvg(id, e, pts, L) {
+    const arrows = e.arrows || 'end';
+    const line = arrows === 'none' ? pts : pullBack(pts, arrows === 'both', true, 4);
+    let s = `<g class="fl-edge" data-edge="${id}"${e.dashed ? ' data-dashed=""' : ''}${e.warm ? ' data-warm=""' : ''}>`;
+    s += `<path class="line" d="${pathOf(line)}"/>`;
+    if (arrows !== 'none') s += `<path class="head" d="${head(pts[pts.length - 2], pts[pts.length - 1], 8)}"/>`;
+    if (arrows === 'both') s += `<path class="head" d="${head(pts[1], pts[0], 8)}"/>`;
+    s += `<path class="track" d="${pathOf(pts)}"/>`; // invisible full-length path the packets ride
+    const at = L.badges && own(L.badges, id) ? L.badges[id] : longestMid(pts);
+    if (e.num && L.numbers !== false && at) {
+      s += `<g class="fl-num"><circle cx="${rd(at[0])}" cy="${rd(at[1])}" r="10"/><text x="${rd(at[0])}" y="${rd(at[1] + 4)}" text-anchor="middle">${(e.from || 0) + 1}</text></g>`;
+    }
+    return s + '</g>';
+  }
+
+  function svgFor(D, key, fam, prefix, hubId) {
+    const L = D.layouts[key];
+    const wrapN = hubId && L.nodes[hubId] ? hubParts(L.nodes[hubId], D.nodes[hubId]).wrapN : 30;
+    let s = `<svg class="fl-svg" data-layout="${key}" data-wrap="${wrapN}" viewBox="0 0 ${L.w} ${L.h}" role="img" aria-label="${esc(D.label)}">`;
+    s += `<defs><pattern id="${prefix}-${key}" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" class="fl-gridline"/></pattern></defs>`;
+    s += `<rect width="${L.w}" height="${L.h}" fill="url(#${prefix}-${key})"/><g class="fl-edges">`;
+    for (const [id, e] of Object.entries(D.edges)) {
+      if (!L.edges[id]) warn(`${key}: edge "${id}" has no geometry`);
+      else s += edgeSvg(id, e, L.edges[id], L);
+    }
+    s += '</g><g class="fl-nodes">';
+    for (const [id, n] of Object.entries(D.nodes)) {
+      if (!L.nodes[id]) warn(`${key}: node "${id}" has no box`);
+      else s += nodeSvg(key, id, n, L.nodes[id], fam);
+    }
+    s += '</g>';
+    for (let i = 0; i < (D.maxPackets || 4); i++) s += `<circle class="fl-packet" data-packet="${i}" r="${L.packet || 5.5}" cx="-20" cy="-20" style="opacity:0"/>`;
+    return s + '</svg>';
+  }
+
+  /* ---------- frame: a pure function of (step, t) ---------- */
+  function frameAt(D, i, t) {
+    const f = { on: new Set(), packets: [], chip: -1, screen: null, status: 0, term: null };
+    const api = {
+      t,
+      ease,
+      at: (a, b = Infinity) => t >= a && t < b,
+      lit(...ids) {
+        for (const id of ids) {
+          if (!own(D.nodes, id) && !own(D.edges, id)) warn(`step ${i + 1}: unknown id "${id}"`);
+          f.on.add(id);
+        }
+      },
+      flow(edge, a, b, o = {}) {
+        if (!own(D.edges, edge)) {
+          warn(`step ${i + 1}: unknown edge "${edge}"`);
+          return false;
+        }
+        if (t < a || t > b) return false;
+        const k = ease((t - a) / (b - a));
+        f.packets.push({ edge, f: o.reverse ? 1 - k : k, warm: !!o.warm });
+        f.on.add(edge);
+        return true;
+      },
+      screen(h, body = '') {
+        f.screen = [String(h), String(body)];
+      },
+      chip(k) {
+        f.chip = k;
+      },
+      status(v) {
+        f.status = Math.max(0, Math.min(1, v));
+      },
+      term(lines) {
+        f.term = lines;
+      },
+    };
+    D.steps[i].run && D.steps[i].run(api);
+    for (const [id, n] of Object.entries(D.nodes)) if (n.always) f.on.add(id);
+    return f;
+  }
+
+  /* ---------- scheme painter: attributes on cached elements ---------- */
+  function refsOf(svg) {
+    const q = (sel) => [...svg.querySelectorAll(sel)];
+    const edges = q('[data-edge]');
+    return {
+      nodes: q('[data-node]'),
+      edges,
+      layer: svg.querySelector('.fl-edges'),
+      tracks: new Map(edges.map((g) => [g.dataset.edge, g.querySelector('.track')])),
+      lengths: new Map(),
+      chips: q('[data-chip]'),
+      head: svg.querySelector('[data-scr="h"]'),
+      lines: q('[data-scr]').filter((el) => el.dataset.scr !== 'h'),
+      status: svg.querySelector('[data-status]'),
+      packets: q('[data-packet]'),
+      wrapN: +svg.dataset.wrap,
+    };
+  }
+
+  function paint(R, D, f, step) {
+    for (const el of R.nodes) {
+      const id = el.dataset.node;
+      el.toggleAttribute('data-hidden', (D.nodes[id].from || 0) > step);
+      el.toggleAttribute('data-on', f.on.has(id));
+    }
+    let changed = false;
+    for (const el of R.edges) {
+      const id = el.dataset.edge, on = f.on.has(id);
+      el.toggleAttribute('data-hidden', (D.edges[id].from || 0) > step);
+      if (on !== el.hasAttribute('data-on')) {
+        el.toggleAttribute('data-on', on);
+        changed = true;
+      }
+    }
+    // lit edges go on top, so a shared trunk shows the active color
+    if (changed) for (const el of R.edges) if (el.hasAttribute('data-on')) R.layer.appendChild(el);
+    R.chips.forEach((el, k) => el.toggleAttribute('data-on', k === f.chip));
+    const scr = f.screen || [D.idle || '', ''];
+    if (R.head) R.head.textContent = scr[0];
+    const lines = wrap(scr[1], R.wrapN);
+    R.lines.forEach((el, k) => (el.textContent = lines[k] || ''));
+    if (R.status) R.status.style.opacity = String(f.status);
+    R.packets.forEach((dot, k) => {
+      const p = f.packets[k], path = p && R.tracks.get(p.edge);
+      if (!path) {
+        dot.style.opacity = '0';
+        return;
+      }
+      let len = R.lengths.get(path);
+      if (len === undefined) {
+        len = path.getTotalLength();
+        R.lengths.set(path, len);
+      }
+      const pt = path.getPointAtLength(len * p.f);
+      dot.setAttribute('cx', pt.x.toFixed(1));
+      dot.setAttribute('cy', pt.y.toFixed(1));
+      dot.style.opacity = '1';
+      dot.toggleAttribute('data-warm', p.warm);
+    });
+  }
+
+  /* ---------- terminal: the same frame on a character grid ---------- */
+  function cellsOf(pts, id) {
+    const out = [pts[0].slice()];
+    for (let i = 1; i < pts.length; i++) {
+      let [r, c] = pts[i - 1];
+      const [r1, c1] = pts[i];
+      if (r !== r1 && c !== c1) warn(`terminal: edge "${id}" has a diagonal segment ${pts[i - 1]} → ${pts[i]}`);
+      while (r !== r1 || c !== c1) {
+        r += Math.sign(r1 - r);
+        c += Math.sign(c1 - c);
+        out.push([r, c]);
+      }
+    }
+    return out;
+  }
+
+  function terminalOf(D, hubId) {
+    const T = D.terminal, R = T.rows, C = T.cols;
+    const ch = Array.from({ length: R }, () => Array(C).fill(' '));
+    const ownr = Array.from({ length: R }, () => Array(C).fill(''));
+    for (const [id, [r, c, h, w]] of Object.entries(T.boxes)) {
+      if (!own(D.nodes, id)) warn(`terminal: box for unknown node "${id}"`);
+      if (r < 0 || c < 0 || r + h > R || c + w > C) {
+        warn(`terminal: box "${id}" is outside the ${C}×${R} grid`);
+        continue;
+      }
+      for (let y = r; y < r + h; y++) {
+        for (let x = c; x < c + w; x++) {
+          if (ownr[y][x]) warn(`terminal: boxes "${ownr[y][x].slice(2)}" and "${id}" overlap`);
+          const er = y === r || y === r + h - 1, ec = x === c || x === c + w - 1;
+          ch[y][x] = er && ec ? (y === r ? (x === c ? '┌' : '┐') : x === c ? '└' : '┘') : er ? '─' : ec ? '│' : ' ';
+          ownr[y][x] = 'n:' + id;
+        }
+      }
+      const n = D.nodes[id] || { title: id };
+      const label = String(n.term || n.title).toUpperCase();
+      if (label.length > w - 2) warn(`terminal: label "${label}" is longer than box "${id}" (${w - 2} chars) — set node.term`);
+      const text = label.slice(0, w - 2), c0 = c + Math.floor((w - text.length) / 2);
+      [...text].forEach((x, j) => (ch[r + 1][c0 + j] = x));
+    }
+    const routes = {};
+    for (const [id, e] of Object.entries(T.edges)) {
+      if (!own(D.edges, id)) warn(`terminal: route for unknown edge "${id}"`);
+      const cells = cellsOf(e.pts, id);
+      routes[id] = cells;
+      const last = cells[cells.length - 1], prevLast = cells[cells.length - 2] || last;
+      const auto = last[0] < prevLast[0] ? '▲' : last[0] > prevLast[0] ? '▼' : last[1] < prevLast[1] ? '◄' : '►';
+      cells.forEach(([y, x], k) => {
+        if (y < 0 || x < 0 || y >= R || x >= C) return warn(`terminal: edge "${id}" leaves the grid at row ${y}, col ${x}`);
+        const was = ownr[y][x];
+        if (was.startsWith('n:')) warn(`terminal: edge "${id}" runs into box "${was.slice(2)}" at row ${y}, col ${x}`);
+        else if (was) warn(`terminal: edges "${was.slice(2)}" and "${id}" share row ${y}, col ${x}`);
+        const prev = cells[k - 1], next = cells[k + 1];
+        const hz = e.dashed ? '╌' : '─', vt = e.dashed ? '╎' : '│';
+        let g;
+        if (!next) g = e.head || auto;
+        else if (!prev) g = next[0] === y ? hz : vt;
+        else if (prev[0] === y && next[0] === y) g = hz;
+        else if (prev[1] === x && next[1] === x) g = vt;
+        else {
+          const up = prev[0] < y || next[0] < y, left = prev[1] < x || next[1] < x;
+          g = up ? (left ? '┘' : '└') : left ? '┐' : '┌';
+        }
+        ch[y][x] = g;
+        ownr[y][x] = 'e:' + id;
+      });
+      const touches = ([y, x]) => [[y - 1, x], [y + 1, x], [y, x - 1], [y, x + 1]].some(([a, b]) => (ownr[a] && ownr[a][b] || '').startsWith('n:'));
+      if (!touches(cells[0])) warn(`terminal: edge "${id}" does not start next to a box`);
+      if (!touches(last)) warn(`terminal: edge "${id}" does not end next to a box`);
+    }
+    return { ch, own: ownr, routes, hubId: hubId && T.boxes[hubId] ? hubId : null };
+  }
+
+  function hubRows(TL, D, f) {
+    const [r, , h, w] = D.terminal.boxes[TL.hubId], n = D.nodes[TL.hubId], inner = w - 4, rows = [];
+    let y = r + 3;
+    const chips = D.terminal.chips || n.chips;
+    if (chips) {
+      rows.push([y, chips.map((x, k) => (k === f.chip ? `[${x}]` : ` ${x} `)).join(' ')]);
+      y += 2;
+    }
+    const scr = f.term || (() => {
+      const s = f.screen || [D.idle || '', ''];
+      return [s[0], ...wrap(s[1], inner)];
+    })();
+    for (let k = 0; y + k <= r + h - 2; k++) rows.push([y + k, scr[k] || '']);
+    return { rows, inner, overflow: scr.length > rows.length - (chips ? 1 : 0) };
+  }
+
+  function renderTerminal(TL, D, f, step) {
+    const grid = TL.ch.map((row) => row.slice());
+    const extra = new Map();
+    if (TL.hubId) {
+      const [r, c, , w] = D.terminal.boxes[TL.hubId], n = D.nodes[TL.hubId];
+      const { rows, inner } = hubRows(TL, D, f);
+      const fitL = (x) => (x.length > inner ? x.slice(0, inner - 1) + '…' : x.padEnd(inner, ' '));
+      for (const [y, text] of rows) [...fitL(text)].forEach((x, j) => (grid[y][c + 2 + j] = x));
+      if (n.status && f.status > 0.5) {
+        const label = ` ${String(n.status).toUpperCase()} `.slice(0, w - 4), c0 = c + w - 2 - label.length;
+        [...label].forEach((x, j) => {
+          grid[r][c0 + j] = x;
+          extra.set(`${r},${c0 + j}`, 'warm');
+        });
+      }
+    }
+    const packets = new Map();
+    for (const p of f.packets) {
+      const cells = TL.routes[p.edge];
+      if (!cells) continue;
+      const [y, x] = cells[Math.min(cells.length - 1, Math.round(p.f * (cells.length - 1)))];
+      packets.set(`${y},${x}`, p.warm);
+    }
+    const hub = TL.hubId && D.terminal.boxes[TL.hubId];
+    const state = (y, x) => {
+      const key = `${y},${x}`;
+      if (packets.has(key)) return packets.get(key) ? 'pkw' : 'pk';
+      if (extra.has(key)) return extra.get(key);
+      const o = TL.own[y][x];
+      if (!o) return '';
+      const id = o.slice(2), isNode = o[0] === 'n', def = isNode ? D.nodes[id] : D.edges[id];
+      if (!def) return 'idle';
+      if ((def.from || 0) > step) return 'hid';
+      if (hub && id === TL.hubId && y > hub[0] && y < hub[0] + hub[2] - 1 && x > hub[1] && x < hub[1] + hub[3] - 1) return y === hub[0] + 1 ? 'on' : 'scr';
+      if (f.on.has(id)) return def.warm ? 'warm' : 'on';
+      return 'idle';
+    };
+    let html = '';
+    for (let y = 0; y < grid.length; y++) {
+      let run = '', s0 = null;
+      const flush = () => {
+        if (run) html += s0 ? `<span data-s="${s0}">${esc(run)}</span>` : esc(run);
+        run = '';
+      };
+      for (let x = 0; x < grid[y].length; x++) {
+        const st = state(y, x);
+        if (st !== s0) {
+          flush();
+          s0 = st;
+        }
+        run += packets.has(`${y},${x}`) ? '●' : grid[y][x];
+      }
+      flush();
+      html += '\n';
+    }
+    return html;
+  }
+
+  /* ---------- validator: warnings in the console, zero is the goal ---------- */
+  function validate(D, TL, hubId) {
+    const STEP = D.stepSeconds || 7, pool = D.maxPackets || 4;
+    for (const id of Object.keys(D.nodes)) if (own(D.edges, id)) warn(`"${id}" is both a node and an edge id — make ids distinct`);
+    for (const [key, L] of Object.entries(D.layouts)) {
+      const boxes = Object.entries(L.nodes);
+      for (const [id, b] of boxes) {
+        if (!own(D.nodes, id)) warn(`${key}: box for unknown node "${id}"`);
+        if (b.x < 0 || b.y < 0 || b.x + b.w > L.w || b.y + b.h > L.h) warn(`${key}: node "${id}" is outside the ${L.w}×${L.h} view box`);
+      }
+      for (let i = 0; i < boxes.length; i++) {
+        for (let j = i + 1; j < boxes.length; j++) {
+          const [a, A] = boxes[i], [b, B] = boxes[j];
+          if (A.x < B.x + B.w && B.x < A.x + A.w && A.y < B.y + B.h && B.y < A.y + A.h) warn(`${key}: nodes "${a}" and "${b}" overlap`);
+        }
+      }
+      const onBorder = (p, b) =>
+        ((Math.abs(p[0] - b.x) < 1.01 || Math.abs(p[0] - b.x - b.w) < 1.01) && p[1] >= b.y - 1 && p[1] <= b.y + b.h + 1) ||
+        ((Math.abs(p[1] - b.y) < 1.01 || Math.abs(p[1] - b.y - b.h) < 1.01) && p[0] >= b.x - 1 && p[0] <= b.x + b.w + 1);
+      const badges = [];
+      for (const [id, pts] of Object.entries(L.edges)) {
+        if (!own(D.edges, id)) warn(`${key}: geometry for unknown edge "${id}"`);
+        if (pts.length < 2) {
+          warn(`${key}: edge "${id}" needs at least two points`);
+          continue;
+        }
+        if (!boxes.some(([, b]) => onBorder(pts[0], b))) warn(`${key}: edge "${id}" starts at ${pts[0]}, not on a node border`);
+        if (!boxes.some(([, b]) => onBorder(pts[pts.length - 1], b))) warn(`${key}: edge "${id}" ends at ${pts[pts.length - 1]}, not on a node border`);
+        for (let k = 1; k < pts.length; k++) {
+          const a = pts[k - 1], b = pts[k];
+          if (a[0] !== b[0] && a[1] !== b[1]) warn(`${key}: edge "${id}" has a diagonal segment ${a} → ${b}`);
+          const x0 = Math.min(a[0], b[0]), x1 = Math.max(a[0], b[0]), y0 = Math.min(a[1], b[1]), y1 = Math.max(a[1], b[1]);
+          for (const [nid, B] of boxes) {
+            if (x1 > B.x + 1 && x0 < B.x + B.w - 1 && y1 > B.y + 1 && y0 < B.y + B.h - 1) warn(`${key}: edge "${id}" passes through node "${nid}"`);
+          }
+        }
+        const e = D.edges[id];
+        if (e && e.num && L.numbers !== false) badges.push([id, L.badges && own(L.badges, id) ? L.badges[id] : longestMid(pts)]);
+      }
+      for (let i = 0; i < badges.length; i++) {
+        for (let j = i + 1; j < badges.length; j++) {
+          const [a, P] = badges[i], [b, Q] = badges[j];
+          if (P && Q && Math.hypot(P[0] - Q[0], P[1] - Q[1]) < 22) warn(`${key}: step badges of "${a}" and "${b}" collide — move one with layout.badges`);
+        }
+      }
+      const hub = hubId && L.nodes[hubId] ? hubParts(L.nodes[hubId], D.nodes[hubId]) : null;
+      if (hub) {
+        D.steps.forEach((_, i) => {
+          for (let t = 0; t <= STEP; t += 0.25) {
+            const f = frameAt(D, i, t);
+            const s = f.screen || [D.idle || '', ''];
+            if (wrap(s[1], hub.wrapN).length > hub.lines) warn(`${key}: step ${i + 1} screen text "${s[1]}" needs more than ${hub.lines} lines`);
+          }
+        });
+      }
+    }
+    for (const { text, size, where } of fits) if (size < 9) warn(`${where}: label "${text}" shrinks to ${size}px — shorten it or widen the box`);
+    D.steps.forEach((s, i) => {
+      if (!s.title || !s.text) warn(`step ${i + 1} needs a title and a text`);
+      for (let t = 0; t <= STEP; t += 0.05) {
+        const f = frameAt(D, i, t);
+        if (f.packets.length > pool) warn(`step ${i + 1}: ${f.packets.length} packets at t=${t.toFixed(2)} — the pool holds ${pool} (maxPackets)`);
+        if (TL && TL.hubId && hubRows(TL, D, f).overflow) warn(`terminal: step ${i + 1} screen text does not fit the hub box at t=${t.toFixed(2)}`);
+      }
+    });
+  }
+
+  function switchHtml(L) {
+    const jaws = [39.5, 80.5]
+      .map((x, i) => `<g class="k-jaw" data-side="${i ? 'terminal' : 'scheme'}"><rect x="${x - 5}" y="12" width="2.6" height="12" rx="1"/><rect x="${x + 2.4}" y="12" width="2.6" height="12" rx="1"/><rect x="${x - 5}" y="22" width="10" height="18" rx="1.5"/></g>`)
+      .join('');
+    return `<button type="button" class="fl-knife" role="switch" aria-checked="false" aria-label="${esc(L.aria)}">
+      <span class="fl-kl" data-side="scheme">${esc(L.scheme)}</span>
+      <svg viewBox="0 0 120 64" aria-hidden="true">
+        <rect x="6" y="40" width="108" height="20" rx="4" class="k-base"/>
+        <circle cx="14" cy="50" r="1.6" class="k-screw"/><circle cx="106" cy="50" r="1.6" class="k-screw"/>
+        ${jaws}
+        <rect x="54" y="38" width="12" height="10" rx="2" class="k-hinge"/>
+        <g class="k-blade"><rect x="58" y="9" width="4" height="36" rx="1.5"/><rect x="53" y="5" width="14" height="7" rx="3.5" class="k-handle"/></g>
+        <circle cx="60" cy="43" r="2.2" class="k-pin"/>
+        <circle cx="39.5" cy="16" r="7" class="k-spark"/>
+      </svg>
+      <span class="fl-kl" data-side="terminal">${esc(L.terminal)}</span>
+    </button>`;
+  }
+
+  function mount(root, D) {
+    const q = new URLSearchParams(location.search);
+    if (q.get('theme')) document.documentElement.dataset.theme = q.get('theme');
+    if (q.get('skin')) root.dataset.skin = q.get('skin');
+    const prefix = 'fl' + ++uid;
+    const STEP = D.stepSeconds || 7, HOLD = D.holdSeconds || 14, N = D.steps.length;
+    const fam = getComputedStyle(root).fontFamily;
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const wideMq = matchMedia(BREAK);
+    const hubId = Object.keys(D.nodes).find((k) => D.nodes[k].screen) || null;
+    const hasTerm = !!(D.terminal && D.switcher);
+    if (D.layouts.tall) root.setAttribute('data-has-tall', '');
+
+    root.innerHTML = `
+      <div class="fl-bar"><span class="fl-readout" aria-hidden="true"></span>${hasTerm ? switchHtml(D.switcher) : ''}</div>
+      <div class="fl-plate" data-view="scheme">
+        ${Object.keys(D.layouts).map((k) => svgFor(D, k, fam, prefix, hubId)).join('')}
+        ${hasTerm ? `<div class="fl-crt" role="img" aria-label="${esc(D.label)}" hidden><pre class="fl-pre" aria-hidden="true"></pre><div class="fl-typed" aria-hidden="true"></div></div>` : ''}
+      </div>
+      <ol class="fl-steps" aria-label="${esc(D.stepsAria || 'Steps')}">
+        ${D.steps.map((s, i) => `<li><button type="button" data-step="${i}" aria-pressed="false"><span class="fl-n">${i + 1}</span>${esc(s.title)}</button></li>`).join('')}
+      </ol>
+      <p class="fl-caption" aria-live="polite"></p>`;
+
+    const svgs = Object.fromEntries([...root.querySelectorAll('.fl-svg')].map((s) => [s.dataset.layout, refsOf(s)]));
+    const plate = root.querySelector('.fl-plate'), crt = root.querySelector('.fl-crt');
+    const pre = root.querySelector('.fl-pre'), typed = root.querySelector('.fl-typed');
+    const readout = root.querySelector('.fl-readout'), caption = root.querySelector('.fl-caption');
+    const buttons = [...root.querySelectorAll('[data-step]')], knife = root.querySelector('.fl-knife');
+    const TL = hasTerm ? terminalOf(D, hubId) : null;
+    if (pre) pre.style.setProperty('--cols', D.terminal.cols);
+    validate(D, TL, hubId);
+
+    const still = reduce || q.has('still');
+    const tParam = q.has('t') ? parseFloat(q.get('t')) : null;
+    const startStep = Math.min(N, Math.max(1, parseInt(q.get('step') || '1', 10) || 1)) - 1;
+    const clock = { step: startStep, t: tParam !== null ? tParam : still ? STEP * 0.8 : 0, hold: q.has('step') ? HOLD : 0 };
+    let view = 'scheme', lastTerm = 0;
+
+    const activeSvg = () => svgs[wideMq.matches || !svgs.tall ? 'wide' : 'tall'];
+    function draw(force) {
+      const { step, t } = clock;
+      const f = frameAt(D, step, t);
+      if (view === 'scheme') return paint(activeSvg(), D, f, step);
+      const now = performance.now();
+      if (!force && now - lastTerm < 45) return; // the terminal is rebuilt whole: ~20 fps is plenty
+      lastTerm = now;
+      pre.innerHTML = renderTerminal(TL, D, f, step);
+      const text = D.steps[step].text;
+      typed.textContent = '> ' + (still ? text : text.slice(0, Math.floor(t * 46)));
+    }
+    function showStep() {
+      const i = clock.step;
+      readout.textContent = `${D.stepWord || 'STEP'} ${i + 1}/${N}`;
+      buttons.forEach((b, k) => {
+        b.setAttribute('aria-pressed', String(k === i));
+        b.toggleAttribute('data-on', k === i);
+      });
+      caption.textContent = D.steps[i].text;
+    }
+    function setView(v, sparkle = true) {
+      view = v;
+      plate.dataset.view = v;
+      caption.dataset.view = v;
+      if (crt) crt.hidden = v !== 'terminal';
+      if (knife) knife.setAttribute('aria-checked', String(v === 'terminal'));
+      if (knife && sparkle) {
+        const spark = knife.querySelector('.k-spark');
+        spark.setAttribute('cx', v === 'terminal' ? '80.5' : '39.5');
+        spark.classList.remove('go');
+        void spark.getBoundingClientRect();
+        spark.classList.add('go');
+      }
+      draw(true);
+    }
+    buttons.forEach((b) =>
+      b.addEventListener('click', () => {
+        clock.step = +b.dataset.step;
+        clock.t = still ? STEP * 0.8 : 0;
+        clock.hold = HOLD; // replay the picked step before the tour moves on
+        showStep();
+        draw(true);
+      })
+    );
+    if (knife) knife.addEventListener('click', () => setView(view === 'scheme' ? 'terminal' : 'scheme'));
+    wideMq.addEventListener('change', () => draw(true));
+
+    showStep();
+    setView(q.get('view') === 'terminal' && TL ? 'terminal' : 'scheme', false);
+    if (still) return;
+
+    let frame = 0, last = 0, visible = false;
+    const tick = (now) => {
+      const dt = last ? Math.min((now - last) / 1000, 0.05) : 1 / 60;
+      last = now;
+      clock.t += dt;
+      if (clock.hold > 0) clock.hold -= dt;
+      if (clock.t > STEP) {
+        clock.t = 0;
+        if (clock.hold <= 0) {
+          clock.step = (clock.step + 1) % N;
+          showStep();
+        }
+      }
+      draw(false);
+      frame = visible ? requestAnimationFrame(tick) : 0;
+    };
+    // stop when off screen: a looping figure must not burn CPU below the fold
+    new IntersectionObserver(
+      (entries) => {
+        visible = entries[entries.length - 1].isIntersecting;
+        if (visible && !frame) {
+          last = 0;
+          frame = requestAnimationFrame(tick);
+        }
+      },
+      { rootMargin: '120px 0px' }
+    ).observe(root);
+  }
+
+  return { mount, frameAt, ICONS };
+})();
+
+FlowDiagram.mount(document.getElementById('max-flow'), DIAGRAM);
+</script>
+</body>
+</html>

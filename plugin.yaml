@@ -1,0 +1,82 @@
+name: max-messenger
+label: MAX
+kind: platform
+version: 0.1.0
+requires_hermes: ">=0.22.6"
+description: >
+  MAX messenger (max.ru) gateway for Hermes Agent: long polling or webhook,
+  typing indicator while the agent thinks, streamed replies, voice notes,
+  files both ways, native approval / clarify / model-picker buttons, Hermes
+  pairing, group chats with mention gating, cron delivery. Also ships two
+  speech-to-text providers for every Hermes platform: Yandex SpeechKit and
+  Sber SaluteSpeech.
+author: urock88
+license: MIT
+homepage: https://github.com/urock88/hermes-max-messenger
+tags: [platform, messenger, max, russia, stt]
+
+python_dependencies:
+  - "httpx>=0.27,<1"
+  - "aiohttp>=3.9,<4"
+  - "certifi>=2024.2.2"
+
+requires_env:
+  - name: MAX_BOT_TOKEN
+    description: "Bot token from business.max.ru: Chat bots → your bot → Integration → Token"
+    prompt: "MAX bot token"
+    url: "https://dev.max.ru/docs/chatbots/bots-create"
+    password: true
+    secret: true
+
+optional_env:
+  - name: MAX_ALLOWED_USERS
+    description: "Comma-separated MAX user ids allowed to talk to the bot. Empty = pairing codes."
+    prompt: "Allowed user ids (comma-separated)"
+  - name: MAX_ALLOW_ALL_USERS
+    description: "true = anyone who writes to the bot may use it (not recommended)"
+    prompt: "Allow all users (true/false)"
+  - name: MAX_HOME_CHANNEL
+    description: "Default delivery target for cron: a user id (DM) or a negative chat id (group)"
+    prompt: "Home channel"
+  - name: MAX_GROUP_ALLOWED_CHATS
+    description: "Comma-separated group chat ids where the bot answers (any member)"
+    prompt: "Allowed group chat ids"
+  - name: MAX_REQUIRE_MENTION
+    description: "In groups answer only when mentioned or replied to (default true)"
+    prompt: "Require mention in groups (true/false)"
+  - name: MAX_WEBHOOK_URL
+    description: "Public https URL on port 443. Set it to use a webhook instead of long polling."
+    prompt: "Webhook URL (empty = long polling)"
+  - name: MAX_WEBHOOK_SECRET
+    description: "Webhook secret, 5-256 chars of [A-Za-z0-9_-]; required with MAX_WEBHOOK_URL"
+    prompt: "Webhook secret"
+    password: true
+    secret: true
+  - name: MAX_WEBHOOK_PORT
+    description: "Local port the webhook listener binds to (default 8646, behind your reverse proxy)"
+    prompt: "Webhook local port"
+  - name: MAX_TABLE_AS_IMAGE
+    description: "Render Markdown tables as PNG pictures (true/false, default false)"
+    prompt: "Tables as images (true/false)"
+  - name: YANDEX_SPEECHKIT_API_KEY
+    description: "Yandex Cloud API key with the ai.speechkit-stt.user role (stt.provider: yandex_speechkit)"
+    prompt: "Yandex SpeechKit API key"
+    url: "https://yandex.cloud/docs/speechkit/stt/request"
+    password: true
+    secret: true
+    category: tool
+  - name: YANDEX_SPEECHKIT_FOLDER_ID
+    description: "Yandex Cloud folder id (needed for a user account key, optional for a service account)"
+    prompt: "Yandex Cloud folder id"
+    category: tool
+  - name: SALUTESPEECH_AUTH_KEY
+    description: "Sber SaluteSpeech authorization key (Base64 client id:secret) (stt.provider: sber_salutespeech)"
+    prompt: "SaluteSpeech authorization key"
+    url: "https://developers.sber.ru/docs/ru/salutespeech/quick-start/integration-individuals"
+    password: true
+    secret: true
+    category: tool
+  - name: SALUTESPEECH_SCOPE
+    description: "SALUTE_SPEECH_PERS (individuals, default), SALUTE_SPEECH_CORP or SALUTE_SPEECH_B2B"
+    prompt: "SaluteSpeech scope"
+    category: tool

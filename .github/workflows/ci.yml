@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: tests · Hermes ${{ matrix.hermes }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # The floor in plugin.yaml, and the newest Hermes (allowed to fail: it may change under us).
+        hermes: ["v0.22.6", "main"]
+    continue-on-error: ${{ matrix.hermes == 'main' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: plugin
+
+      - uses: actions/checkout@v4
+        with:
+          repository: NousResearch/hermes-agent
+          ref: ${{ matrix.hermes }}
+          path: hermes-agent
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"  # Hermes pins its dependencies for Python 3.14
+
+      - name: Install Hermes and the plugin's test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ./hermes-agent
+          python -m pip install -e "./plugin[dev,tables]"
+
+      - name: Lint
+        working-directory: plugin
+        run: ruff check .
+
+      - name: Tests
+        working-directory: plugin
+        env:
+          PYTHONPATH: ${{ github.workspace }}/hermes-agent
+        run: pytest -q
+
+      - name: Hermes catalog validation
+        env:
+          PYTHONPATH: ${{ github.workspace }}/hermes-agent
+        run: |
+          export HERMES_HOME="$(mktemp -d)"
+          python - <<'EOF'
+          import sys
+          from pathlib import Path
+          from hermes_cli.plugin_validate import validate_plugin_dir
+          report = validate_plugin_dir(Path("plugin"))
+          for name, ok, detail in report.checks:
+              print(("ok  " if ok else "FAIL"), name, "-", detail)
+          for warning in report.warnings:
+              print("WARN", warning)
+          sys.exit(0 if report.ok else 1)
+          EOF
+
+      - name: Docs match the code
+        working-directory: plugin
+        run: python scripts/check_config_reference.py
+
+      - name: Desktop plugin parses
+        working-directory: plugin
+        run: node --check desktop/plugin.js
