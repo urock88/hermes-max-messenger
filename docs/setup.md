@@ -37,9 +37,11 @@ If `max-platform` (another MAX plugin) is installed, disable it first: both clai
 hermes gateway setup           # choose MAX
 ```
 
-The wizard asks for the token and checks it with `GET /me`, then asks who may use the bot (empty = pairing
-codes), whether to use long polling or a webhook (it generates the webhook secret), and the home chat. Everything
-lands in `~/.hermes/.env`. The same can be done by hand — see the settings table in the README.
+The wizard asks for the token and checks it with `GET /me`, then the bot's language, who may use the bot (empty =
+access codes), whether to use long polling or a webhook (it generates the webhook secret), and the home chat.
+Everything lands in `~/.hermes/.env`. It ends with a numbered list of next steps and a warning that a bot has one
+reader. The same can be done by hand — see the settings table in the README; how people get in is in the README's
+"Letting a new person in".
 
 ```bash
 hermes gateway restart
@@ -50,11 +52,15 @@ subscriptions. If it says the bot has webhook subscriptions, either remove them 
 
 ## 4. Test checklist
 
-Use a MAX account that is **not** in `MAX_ALLOWED_USERS` for step 1, then your own account.
+Use a MAX account that is **not** in `MAX_ALLOWED_USERS` for steps 1a–1c (with a home chat set, see step 10), then
+your own account.
 
 | # | Do | Expect |
 |---|---|---|
-| 1 | Open the bot from a new account and press *Start*. | A pairing code. On the server `hermes pairing approve max <code>`; the next message gets an answer. Nothing sent before approval is downloaded. |
+| 1a | Open the bot from a new account and press *Start*. | A message with an access code in the language of that account's MAX app (Russian or English), saying to forward it to the owner. At the same moment the home chat gets "Someone new asks for access": name, MAX id, code, command. Nothing sent before approval is downloaded. |
+| 1b | From the same account write again within 10 minutes. | One reminder with the same code; further messages get no answer. The home chat gets nothing new. |
+| 1c | On the server `hermes pairing approve max <code>`. | Within ~15 s the new account gets "You're approved ✅"; its next message gets an answer; *Start* says it may just write. |
+| 1d | Set a wrong `MAX_BOT_TOKEN`, restart, run `hermes gateway status`. | A plain message in `MAX_LANGUAGE` saying the token was refused and how to fix it — no stack trace. Put the right token back. |
 | 2 | Ask something that takes the agent a while ("summarise the latest Hermes release notes"). | "печатает…" / "typing…" under the bot's name the whole time the agent works, not only for the first seconds. |
 | 3 | Ask for a long answer (a 1 500-word essay). | The message appears early and grows by edits; past ~3 500 characters it continues in a second message; no text is lost. |
 | 4 | Ask for code and a small table. | Code in a monospaced block, the table in aligned columns (or a picture with `MAX_TABLE_AS_IMAGE=true`). |

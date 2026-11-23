@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.2.0 — first contact
+
+* A stranger's access code now comes in the language of their MAX app (Russian or English, otherwise `MAX_LANGUAGE`)
+  instead of Hermes core's global language, and says plainly to forward the message to the bot's owner. The plugin rewords
+  core's pairing reply as it goes out; codes are still minted, rate-limited and approved by core, and other platforms keep
+  core's text.
+* The owner's home chat is told about every new access request at once: name, MAX id, code, approve command.
+* A stranger who writes again while core stays silent (one code per 10 minutes) is reminded of the same code, once.
+* The guest is told "You're approved" within about 15 seconds of `hermes pairing approve`; `/start` from an approved person
+  says they may just write.
+* `hermes gateway setup` asks for the bot's language and ends with a numbered checklist and the one-reader warning.
+* Start-up errors (no token, token refused, API unreachable, webhook in the way) are plain sentences in `MAX_LANGUAGE`
+  with the next step to take.
+* An info log line for every code issued (user id, name, masked code).
+* README: "Letting a new person in" — both routes, step by step for the guest and the owner.
+
 ## 0.1.0 — first public version
 
 * MAX as a Hermes gateway platform: direct chats and groups (mention gating, allowed groups, free-response chats).

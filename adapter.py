@@ -5,7 +5,8 @@ What Hermes core already does for every adapter and this one only plugs into:
 * the "typing…" indicator — core calls :meth:`MaxAdapter.send_typing` every 2 s while the agent
   thinks, pauses it while a person decides an approval, and stops it when the answer is out;
 * streamed replies — core sends the first piece, then calls :meth:`MaxAdapter.edit_message`;
-* authorization and pairing — unknown senders reach core, which answers with a pairing code;
+* authorization and pairing — unknown senders reach core, which answers with a pairing code
+  (reworded here into the person's language and announced to the owner, see ``onboarding.py``);
 * splitting long replies (code fences kept intact) and cron delivery.
 
 Chat ids: a person is their MAX user id (positive), a group chat its chat id (negative, or any id
@@ -19,6 +20,7 @@ import hashlib
 import logging
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 from gateway.config import Platform, PlatformConfig
 from gateway.platforms.base import BasePlatformAdapter, SendResult
@@ -38,6 +40,8 @@ from .maxapi.models import (
     dedup_key,
     parse_update,
 )
+from .onboarding import Onboarding, PendingCode, mask_code, pick_language
+from .onboarding import text as onboarding_text
 from .outbound import formatting
 from .outbound.sender import Target, deliver, message_id, resolve_target, upload
 from .settings import PLATFORM, Settings, read_settings
@@ -52,6 +56,15 @@ logger = logging.getLogger(__name__)
 SOURCE_CHUNK = 3500
 MAX_TEXT = 4000
 _UPLOAD_ACTION = {"image": "sending_photo", "video": "sending_video", "audio": "sending_audio", "file": "sending_file"}
+# How often a pending access code is checked for approval (``hermes pairing approve`` runs elsewhere).
+APPROVAL_POLL_SECONDS = 15.0
+
+
+def _error_reason(exc: Exception) -> str:
+    """A short, token-free reason for a status line: never a stack trace."""
+    if isinstance(exc, MaxApiError):
+        return exc.message or exc.code or (f"HTTP {exc.status}" if exc.status else "no response")
+    return f"{type(exc).__name__}: {exc}"[:200]
 
 
 def _not_connected() -> SendResult:
@@ -89,13 +102,18 @@ class MaxAdapter(InteractiveMixin, BasePlatformAdapter):
         self.bot_username = ""
         self._session_owners: dict[str, str] = {}
         self._chat_requesters: dict[str, str] = {}
+        self._onboarding = Onboarding(self._language)
+
+    def _say(self, key: str, **values: Any) -> str:
+        """An operator-facing text in the bot's language (``MAX_LANGUAGE``)."""
+        return onboarding_text(key, pick_language("", self._language), **values)
 
     # ── lifecycle ───────────────────────────────────────────────────────────────────────────────
 
     async def connect(self, *, is_reconnect: bool = False) -> bool:
         s = self.settings
         if not s.token:
-            self._set_fatal_error("max_no_token", "MAX_BOT_TOKEN is not set", retryable=False)
+            self._set_fatal_error("max_no_token", self._say("error_no_token"), retryable=False)
             return False
         client = self._client_factory(s)
         try:
@@ -103,10 +121,13 @@ class MaxAdapter(InteractiveMixin, BasePlatformAdapter):
         except MaxApiError as exc:
             await client.close()
             if exc.is_auth:
-                self._set_fatal_error("max_auth", "MAX refused the bot token (HTTP 401): check MAX_BOT_TOKEN",
-                                      retryable=False)
+                self._set_fatal_error("max_auth", self._say("error_auth"), retryable=False)
             else:
-                self._set_fatal_error("max_unreachable", f"MAX API is unreachable: {exc}", retryable=True)
+                host = urlparse(s.api_base).hostname or s.api_base
+                self._set_fatal_error("max_unreachable",
+                                      self._say("error_unreachable", host=host, reason=_error_reason(exc)),
+                                      retryable=True)
+            logger.warning("MAX: %s", self._fatal_error_message)
             return False
         identity = hashlib.sha256(s.token.encode()).hexdigest()
         if not self._acquire_platform_lock("max-bot-token", identity, "MAX bot token"):
@@ -130,11 +151,12 @@ class MaxAdapter(InteractiveMixin, BasePlatformAdapter):
                 self._poll_task = asyncio.create_task(self._poller.run(), name="max-poll")
         except Exception as exc:  # noqa: BLE001
             logger.error("MAX: could not start receiving updates: %s", exc)
-            self._set_fatal_error("max_start", f"MAX could not start receiving updates: {exc}", retryable=True)
+            self._set_fatal_error("max_start", self._say("error_start", reason=_error_reason(exc)), retryable=True)
             await self._teardown()
             return False
         if s.update_commands:
             self._spawn(self._publish_commands())
+        self._spawn(self._watch_approvals())
         self._mark_connected()
         self._wire_plugin_handlers(None)
         logger.info("MAX: connected as @%s (%s), %s", self.bot_username or "?", self.bot_id,
@@ -148,11 +170,9 @@ class MaxAdapter(InteractiveMixin, BasePlatformAdapter):
             return True
         urls = [str(sub.get("url") or "") for sub in subscriptions]
         if not self.settings.polling_takeover:
-            self._set_fatal_error(
-                "max_webhook_active",
-                f"This bot has {len(urls)} webhook subscription(s), and MAX does not deliver to long polling "
-                "while one exists. Remove it (DELETE /subscriptions) or set MAX_POLLING_TAKEOVER=true to let "
-                "the adapter remove it.", retryable=False)
+            self._set_fatal_error("max_webhook_active", self._say("error_webhook_active", count=len(urls)),
+                                  retryable=False)
+            logger.warning("MAX: %s", self._fatal_error_message)
             return False
         for url in urls:
             await self._client.unsubscribe(url)
@@ -167,7 +187,8 @@ class MaxAdapter(InteractiveMixin, BasePlatformAdapter):
         await self._client.subscribe(s.webhook_url, secret=s.webhook_secret, update_types=UPDATE_TYPES)
 
     async def _on_poll_fatal(self, exc: MaxApiError) -> None:
-        self._set_fatal_error("max_auth", "MAX refused the bot token while polling (HTTP 401)", retryable=False)
+        self._set_fatal_error("max_auth", self._say("error_poll_auth"), retryable=False)
+        logger.error("MAX: %s", self._fatal_error_message)
         await self._notify_fatal_error()
 
     async def disconnect(self) -> None:
@@ -207,6 +228,52 @@ class MaxAdapter(InteractiveMixin, BasePlatformAdapter):
             await self._client.set_commands(command_menu(self._language))
         except Exception as exc:  # noqa: BLE001 - the menu is a convenience
             logger.info("MAX: could not publish the command menu: %s", exc)
+
+    # ── first contact (onboarding.py) ───────────────────────────────────────────────────────────
+
+    def _authorized_dm(self, user_id: str) -> bool:
+        return self._is_sender_authorized(str(user_id), "dm", str(user_id)) is True
+
+    async def _first_contact(self, chat_id: str, user_id: str, name: str, user_locale: str, *,
+                             authorized: bool, is_start: bool) -> None:
+        """Before a DM goes to core: greet an approved person's ``/start``, or remind a stranger of the
+        code core gave them (core itself stays silent to them for a while after a code)."""
+        if authorized:
+            self._onboarding.known_wrote(user_id)
+            if is_start:  # core ignores /start as a platform ping
+                await self.send(chat_id, onboarding_text("welcome", self._onboarding.language_for(user_locale)))
+            return
+        remind = self._onboarding.stranger_wrote(chat_id, user_id, name, user_locale)
+        if remind is not None:
+            await self.send(chat_id, onboarding_text("reminder", remind.lang, code=remind.code))
+
+    async def _announce_request(self, pending: PendingCode) -> None:
+        """Tell the owner's home chat about a new access request, at the moment the code goes out."""
+        logger.info("MAX: pairing code issued platform=max user_id=%s name=%s code=%s",
+                    pending.user_id, pending.name or "—", mask_code(pending.code))
+        home = getattr(self.config, "home_channel", None)
+        home_chat = str(getattr(home, "chat_id", "") or "").strip()
+        if not home_chat:
+            logger.info("MAX: no home chat set, so nobody was told about the request "
+                        "(send /sethome to the bot, or set MAX_HOME_CHANNEL)")
+            return
+        if home_chat == pending.chat_id:
+            return  # the stranger's own chat: never send the owner's notice there
+        result = await self.send(home_chat, self._onboarding.owner_notice(pending))
+        if not result.success:
+            logger.warning("MAX: could not tell the home chat about an access request: %s", result.error)
+
+    async def _watch_approvals(self) -> None:
+        while True:
+            await asyncio.sleep(APPROVAL_POLL_SECONDS)
+            await self._check_approvals()
+
+    async def _check_approvals(self) -> None:
+        if not self._onboarding.has_pending:
+            return
+        for pending in self._onboarding.take_approved(self._authorized_dm):
+            logger.info("MAX: user %s was approved; telling them", pending.user_id)
+            await self.send(pending.chat_id, onboarding_text("approved", pending.lang))
 
     # ── inbound ─────────────────────────────────────────────────────────────────────────────────
 
@@ -257,6 +324,9 @@ class MaxAdapter(InteractiveMixin, BasePlatformAdapter):
             if text is None:
                 return
         authorized = self._is_sender_authorized(str(user_id), chat_type, chat_id) is True
+        if chat_type == "dm":
+            await self._first_contact(chat_id, str(user_id), msg.sender.name, msg.user_locale, authorized=authorized,
+                                      is_start=(text or "").strip().split(" ")[0].lower() == "/start")
         media = await self._media(msg, authorized)
         body = "\n".join(part for part in [
             f"[forwarded from {msg.forwarded_from}]" if msg.forwarded_from else "", text or "", *media.notes] if part)
@@ -310,6 +380,8 @@ class MaxAdapter(InteractiveMixin, BasePlatformAdapter):
             user_id = str(event.user.user_id)
             if event.chat_id is not None:
                 self._state.remember_dialog(user_id, str(event.chat_id))
+            await self._first_contact(user_id, user_id, event.user.name, event.user_locale,
+                                      authorized=self._authorized_dm(user_id), is_start=True)
             source = self.build_source(chat_id=user_id, chat_type="dm", user_id=user_id,
                                        user_name=event.user.name or None)
             text = f"/start {event.payload}".strip()
@@ -328,6 +400,10 @@ class MaxAdapter(InteractiveMixin, BasePlatformAdapter):
             return SendResult(success=True)
         if self._client is None:
             return _not_connected()
+        rewrite = self._onboarding.outgoing(str(chat_id), content)
+        content = rewrite.content
+        if rewrite.issued is not None:
+            self._spawn(self._announce_request(rewrite.issued))
         try:
             target = self._target(chat_id)
             content, table_images = self._tables_as_images(content)

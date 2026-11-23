@@ -267,7 +267,7 @@ async def test_polling_refuses_to_steal_a_webhook(make_adapter, fake_max):
     fake_max.subscriptions = [{"url": "https://example.org/hook"}]
     adapter = await make_adapter(connect=False)
     assert not await adapter.connect()
-    assert "webhook subscription" in (adapter._fatal_error_message or "")
+    assert "MAX_POLLING_TAKEOVER=true" in (adapter._fatal_error_message or "")
     assert not fake_max.made("DELETE", "/subscriptions")
 
 

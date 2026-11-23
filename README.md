@@ -34,7 +34,7 @@
 | 🎙️ **Voice notes** | Transcribed by the speech-to-text provider you choose: Yandex SpeechKit, Sber SaluteSpeech (both included), a local Whisper, or any Hermes provider. Voice replies arrive as audio. |
 | 📎 **Files both ways** | Photos, videos, documents and audio in; the agent sends files back with `MEDIA:/path`. |
 | 🔘 **Buttons** | Approve or deny a dangerous command, answer a clarifying question, pick a model — with native MAX buttons that only the right person can press. |
-| 🔐 **Hermes pairing** | A stranger gets a pairing code you approve with `hermes pairing approve max <code>`; or keep a fixed list of allowed users. |
+| 🔐 **Hermes pairing** | A stranger gets an access code in their own language, you hear about it in your home chat and approve it with `hermes pairing approve max <code>`; or keep a fixed list of allowed users. |
 | 🧾 **Readable formatting** | The model's Markdown becomes MAX's HTML: bold, italic, code, code blocks, links, quotes, lists; tables become aligned columns or a picture. |
 | ⏰ **Cron and `hermes send`** | Scheduled jobs deliver to your home chat in MAX, from inside or outside the gateway process. |
 | 🖥️ **Hermes Desktop** | A "MAX sessions" page and a MAX mark on those conversations in the session list. |
@@ -51,14 +51,36 @@
    hermes gateway setup        # choose MAX, paste the token
    hermes gateway restart
    ```
-3. **Say hello.** Open the bot in MAX and press *Start*. If you did not list yourself as an allowed user, the bot answers with a
-   pairing code; approve it on the server:
+3. **Say hello.** Open the bot in MAX and press *Start*. If you did not list yourself as an allowed user, the bot answers with an
+   access code; approve it on the server:
    ```bash
    hermes pairing approve max <code>
    ```
-4. Send `/sethome` in the chat to make it the home chat for cron results. Done.
+4. Send `/sethome` in the chat to make it the home chat: cron results and access requests from new people go there. Done.
 
 Voice notes need a speech-to-text provider — see [Speech-to-text](#speech-to-text).
+
+## Letting a new person in
+
+Each person comes in one of two ways.
+
+**A. You know their MAX id.** Add it to `MAX_ALLOWED_USERS` (comma-separated) and run `hermes gateway restart`; they write
+and get answers straight away. With a non-empty list the bot stays silent to everybody else: a stranger sees no reply, and you
+see their id in the log and, once per person, in the home chat. To learn someone's id, let them go through route B once —
+`hermes pairing list` shows it.
+
+**B. An access code** — works while `MAX_ALLOWED_USERS` is empty.
+
+| Step | The new person | You, the owner |
+|---|---|---|
+| 1 | Finds the bot in MAX (by its name or a link you send) and presses *Start* or writes anything. | — |
+| 2 | Gets a message with an access code, in their MAX app's language (Russian or English; otherwise `MAX_LANGUAGE`). | If a home chat is set, the bot tells you at once: name, MAX id, code and the command to run. |
+| 3 | Forwards that message to you, through any messenger. | Runs `hermes pairing approve max <code>` on the server where Hermes runs. |
+| 4 | Gets "You're approved ✅" within about 15 seconds and just writes. | — |
+
+A code lives one hour, and a person gets at most one code per 10 minutes; if they write again meanwhile, the bot reminds them
+of the same code. Don't know the person? Do nothing: the code expires. To take access back: `hermes pairing revoke max <id>`.
+Approve only people you trust — an approved person can ask the agent to do anything it can do.
 
 ## Next to the Telegram adapter
 
@@ -86,11 +108,11 @@ prefix can be set under `platforms.max.extra` in `config.yaml`. Environment wins
 | `MAX_BOT_TOKEN` | — | **Required.** The bot's token. |
 | `MAX_ALLOWED_USERS` | empty | Comma-separated MAX user ids allowed to use the bot. Empty: strangers get a pairing code. |
 | `MAX_ALLOW_ALL_USERS` | `false` | Let anyone who writes to the bot use it (and your server). Not recommended. |
-| `MAX_HOME_CHANNEL` | empty | Where cron results go: a user id, or a group chat id (negative). `/sethome` sets it too. |
+| `MAX_HOME_CHANNEL` | empty | Where cron results and access requests go: a user id, or a group chat id (negative). `/sethome` sets it too. |
 | `MAX_GROUP_ALLOWED_CHATS` | empty | Group chat ids where any member may use the bot. |
 | `MAX_REQUIRE_MENTION` | `true` | In groups, answer only when mentioned, replied to, or given a command. |
 | `MAX_FREE_RESPONSE_CHATS` | empty | Group chat ids where every message counts, mention or not. |
-| `MAX_LANGUAGE` | `ru` | Language of the plugin's own words (buttons, command menu): `ru` or `en`. |
+| `MAX_LANGUAGE` | `ru` | Language of the plugin's own words (buttons, command menu, notices to you, start-up errors): `ru` or `en`. A new person is answered in their MAX app's language when it is one of these two. |
 | `MAX_WEBHOOK_URL` | empty | Public `https://` URL (port 443). Set it to use a webhook instead of long polling. |
 | `MAX_WEBHOOK_SECRET` | — | Required with a webhook: 5–256 characters of `A-Z a-z 0-9 _ -`. |
 | `MAX_WEBHOOK_HOST` | `127.0.0.1` | Local address the webhook listener binds to. |
@@ -155,6 +177,8 @@ people in `MAX_ALLOWED_USERS`, or anyone in a chat listed in `MAX_GROUP_ALLOWED_
 ## Security model
 
 * **Nothing is fetched for strangers.** Attachments of a person who is not allowed (yet) are never downloaded; they only get a pairing code.
+* **Hermes decides who gets in.** The plugin only rewords core's pairing reply into the person's language, reminds them of
+  the same code and tells you about the request; minting, rate-limiting and approving codes stay in Hermes core.
 * **Downloads are SSRF-safe.** Hermes' own client checks every address and redirect; the bot token is never sent to media hosts.
 * **Buttons are bound to their owner.** A prompt remembers who raised it, in which chat and on which message, and expires in
   15 minutes. Anyone else's press is refused and does not use the prompt up.

@@ -5,6 +5,8 @@ from __future__ import annotations
 import asyncio
 import secrets
 
+from .onboarding import text as onboarding_text
+
 
 def _check_token(token: str) -> tuple[bool, str]:
     from .maxapi import MaxApiError, MaxClient
@@ -43,7 +45,7 @@ def interactive_setup() -> None:
         "1. On business.max.ru open Chat bots → Create a bot (a verified organisation or",
         "   self-employed profile is required by MAX).",
         "2. Open the bot → Integration → copy the token.",
-        "3. Use a separate bot for Hermes: one token can be polled by only one program.",
+        "3. Use a separate bot for Hermes: a MAX bot has exactly one reader of its updates.",
     ):
         print_info(line)
     token = prompt("MAX bot token", password=True).strip()
@@ -59,8 +61,15 @@ def interactive_setup() -> None:
     save_env_values(MAX_BOT_TOKEN=token)
 
     print()
+    language = ("ru", "en")[prompt_choice(
+        "Bot language (command menu, your notices; a person new to the bot is answered in their MAX app's language)",
+        ["Русский", "English"], 0)]
+    save_env_values(MAX_LANGUAGE=language)
+
+    print()
     print_info("Who may use the bot. Leave empty to use pairing: a new person gets a code that you")
-    print_info("approve with  hermes pairing approve max <code>.")
+    print_info("approve with  hermes pairing approve max <code>. Don't know your own MAX id? Leave it")
+    print_info("empty and approve your own code the first time you write to the bot.")
     allowed = prompt_csv("Allowed MAX user ids (comma-separated)", "")
     if allowed:
         save_env_values(MAX_ALLOWED_USERS=allowed)
@@ -78,8 +87,8 @@ def interactive_setup() -> None:
             print_info("Point your reverse proxy at 127.0.0.1:8646/max/webhook (MAX_WEBHOOK_PORT / _PATH).")
 
     print()
-    print_info("Home chat for cron results: your MAX user id, or a group chat id (negative).")
-    print_info("You can also send /sethome in the chat later.")
+    print_info("Home chat for cron results and access requests: your MAX user id, or a group chat id")
+    print_info("(negative). You can also send /sethome in the chat later.")
     home = prompt("Home chat id (empty = later)").strip()
     if home:
         save_env_values(MAX_HOME_CHANNEL=home)
@@ -88,4 +97,13 @@ def interactive_setup() -> None:
     print_info("Voice notes are transcribed by Hermes' speech-to-text (config.yaml → stt.provider).")
     print_info("This plugin adds: yandex_speechkit (YANDEX_SPEECHKIT_API_KEY) and")
     print_info("sber_salutespeech (SALUTESPEECH_AUTH_KEY). Without a cloud key use 'local'.")
-    print_success("MAX is configured. Restart the gateway: hermes gateway restart")
+    print()
+    print_success("MAX is configured.")
+    for line in finish_lines(language):
+        print_info(line)
+    print_warning(onboarding_text("setup_one_reader", language))
+
+
+def finish_lines(language: str) -> list[str]:
+    """The numbered next steps the wizard ends with."""
+    return onboarding_text("setup_checklist", language).splitlines()

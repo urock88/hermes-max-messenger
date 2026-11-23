@@ -119,9 +119,10 @@ class BotEvent:
     payload: str = ""
     timestamp_ms: int = 0
     is_channel: bool = False
+    user_locale: str = ""
 
 
-Update = IncomingMessage | CallbackPress | BotEvent
+Update =IncomingMessage | CallbackPress | BotEvent
 
 
 def _sender(raw: Any) -> Sender:
@@ -214,7 +215,7 @@ def parse_update(update: Any) -> Update | None:
     if kind in {"bot_started", "bot_stopped", "bot_added", "bot_removed"}:
         return BotEvent(kind=kind, chat_id=_int(update.get("chat_id")), user=_sender(update.get("user")),
                         payload=_str(update.get("payload")), timestamp_ms=_int(update.get("timestamp")) or 0,
-                        is_channel=bool(update.get("is_channel")))
+                        is_channel=bool(update.get("is_channel")), user_locale=_str(update.get("user_locale")))
     return None
 
 
