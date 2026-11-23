@@ -19,25 +19,29 @@ jobs:
         hermes: ["v0.22.6", "main"]
     continue-on-error: ${{ matrix.hermes == 'main' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           path: plugin
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           repository: NousResearch/hermes-agent
           ref: ${{ matrix.hermes }}
           path: hermes-agent
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.14"  # Hermes pins its dependencies for Python 3.14
 
+      # Hermes installs only through uv: its pins conflict on purpose (browser-harness wants
+      # Pillow 12, Hermes pins 13) and the conflict is settled by [tool.uv] override-dependencies,
+      # which pip does not read. Install exactly what Hermes' uv.lock says, then the plugin on top.
       - name: Install Hermes and the plugin's test dependencies
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install -e ./hermes-agent
-          python -m pip install -e "./plugin[dev,tables]"
+          python -m pip install --upgrade uv
+          (cd hermes-agent && uv sync --frozen --python "$(command -v python)")
+          uv pip install --python hermes-agent/.venv/bin/python -e "./plugin[dev,tables]"
+          echo "$GITHUB_WORKSPACE/hermes-agent/.venv/bin" >> "$GITHUB_PATH"
 
       - name: Lint
         working-directory: plugin
