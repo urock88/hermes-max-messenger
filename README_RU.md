@@ -181,8 +181,9 @@ MAX_WEBHOOK_SECRET=$(openssl rand -hex 24)
 ## Разработка
 
 ```bash
-python -m pip install -e /path/to/hermes-agent     # ядро Hermes, Python 3.14
-python -m pip install -e ".[dev,tables]"
+(cd /path/to/hermes-agent && uv sync --frozen)    # ядро Hermes, Python 3.14 (pip не разрешает его версии)
+uv pip install --python /path/to/hermes-agent/.venv/bin/python -r pyproject.toml --extra dev --extra tables
+export PYTHONPATH=/path/to/hermes-agent              # дальше python, pytest и ruff из этого venv
 pytest -q && ruff check .
 python scripts/check_config_reference.py            # таблица настроек совпадает с кодом
 python scripts/build_architecture_svg.py            # пересобрать картинку README

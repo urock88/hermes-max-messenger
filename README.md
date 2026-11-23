@@ -181,8 +181,9 @@ The plugin talks to `platform-api2.max.ru` (the bot token goes there in a header
 ## Development
 
 ```bash
-python -m pip install -e /path/to/hermes-agent     # Hermes core, Python 3.14
-python -m pip install -e ".[dev,tables]"
+(cd /path/to/hermes-agent && uv sync --frozen)    # Hermes core, Python 3.14 (pip cannot resolve its pins)
+uv pip install --python /path/to/hermes-agent/.venv/bin/python -r pyproject.toml --extra dev --extra tables
+export PYTHONPATH=/path/to/hermes-agent              # then use that venv's python, pytest and ruff
 pytest -q && ruff check .
 python scripts/check_config_reference.py            # the settings table above matches the code
 python scripts/build_architecture_svg.py            # rebuild the README picture
